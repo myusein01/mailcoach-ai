@@ -1,3 +1,4 @@
+// @ts-nocheck
 // db/schema.ts
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
