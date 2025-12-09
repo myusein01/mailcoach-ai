@@ -42,7 +42,7 @@ async function improveEmail() {
 
   // Appel à ton backend MailCoach
   try {
-    const res = await fetch("https://ton-domaine.vercel.app/api/improve-email", {
+    const res = await fetch("https://www.mailcoach-ai.com/api/improve-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text: original }),
