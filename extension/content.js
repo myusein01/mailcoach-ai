@@ -1,6 +1,6 @@
 console.log("MailCoach AI content script loaded");
 
-// Zone de texte principale
+// Zone de texte principale (corps du mail)
 function findComposeBox() {
   return document.querySelector(
     'div[role="textbox"][aria-label="Corps du message"], div[role="textbox"][g_editable="true"]'
@@ -11,6 +11,16 @@ function findComposeBox() {
 function findSubjectInput() {
   return document.querySelector('input[name="subjectbox"]');
 }
+
+// === CONFIG API ===
+
+// 🔹 En DEV local :
+const API_ENDPOINT = "http://localhost:3000/api/improve-email";
+
+// 🔹 En PROD, quand tu seras prêt :
+// const API_ENDPOINT = "https://www.mailcoach-ai.com/api/improve-email";
+
+// ===================
 
 // Bouton flottant
 function createWidget() {
@@ -51,13 +61,7 @@ async function improveEmail() {
   }
 
   try {
-    // En dev local :
-    // const endpoint = "http://localhost:3000/api/improve-email";
-
-    // En prod :
-    const endpoint = "https://www.mailcoach-ai.com/api/improve-email";
-
-    const res = await fetch(endpoint, {
+    const res = await fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -84,7 +88,13 @@ async function improveEmail() {
       if (subjectInput && improvedSubject) {
         subjectInput.value = improvedSubject;
       }
-      box.innerText = improvedBody;
+
+      // On remplace le contenu en gardant les sauts de ligne
+      const html = improvedBody
+        .split("\n")
+        .map((line) => line.trim())
+        .join("<br>");
+      box.innerHTML = html;
     }
   } catch (err) {
     console.error(err);
