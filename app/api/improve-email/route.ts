@@ -1,43 +1,50 @@
-// app/api/improve-email/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-// Assure-toi que cette variable existe dans ton .env
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-// Petite fonction utilitaire pour CORS
-function corsResponse(body: any, status = 200) {
+function cors(body: any, status = 200) {
   return new NextResponse(JSON.stringify(body), {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*", // <– Gmail pourra appeler ton API
+      "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "POST,OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }
 
-// Réponse au preflight CORS
 export async function OPTIONS() {
-  return corsResponse({}, 200);
+  return cors({}, 200);
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const { text } = await req.json();
+    const { text, subject } = await req.json();
 
     if (!text || typeof text !== "string") {
-      return corsResponse({ error: "Champ 'text' manquant." }, 400);
+      return cors({ error: "Champ 'text' manquant." }, 400);
     }
+
+    const currentSubject = typeof subject === "string" ? subject : "";
 
     const prompt = `
 Tu es un assistant qui réécrit des emails professionnels en français.
-Améliore le texte suivant : clarifie, corrige, rends plus pro, sans changer le sens.
 
-Email :
+RÈGLES :
+- Tu dois renvoyer un JSON STRICT de la forme {"subject":"...","body":"..."}.
+- "subject" = l'objet de l'email, court et professionnel (sans "Objet :").
+- "body" = uniquement le corps du mail, sans ligne "Objet", ni répétition d'objet.
+- Garde le sens du message, améliore la clarté, l'orthographe et le ton.
+
+Email à améliorer :
+Objet actuel (peut être vide) :
+"""${currentSubject}"""
+
+Corps du mail :
 """${text}"""
 `;
 
@@ -46,19 +53,22 @@ Email :
       messages: [{ role: "user", content: prompt }],
     });
 
-    const improved =
-      completion.choices[0].message.content?.trim() ?? "";
+    const raw = completion.choices[0].message.content ?? "";
+    let parsed: { subject?: string; body?: string };
 
-    if (!improved) {
-      return corsResponse({ error: "Pas de réponse du modèle." }, 500);
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // secours : si ce n'est pas du JSON valide
+      parsed = { subject: currentSubject, body: raw };
     }
 
-    return corsResponse({ improved }, 200);
+    const improvedSubject = (parsed.subject || currentSubject || "").trim();
+    const improvedBody = (parsed.body || raw || text).trim();
+
+    return cors({ subject: improvedSubject, body: improvedBody }, 200);
   } catch (err) {
     console.error("Erreur improve-email:", err);
-    return corsResponse(
-      { error: "Erreur interne du serveur." },
-      500
-    );
+    return cors({ error: "Erreur interne du serveur." }, 500);
   }
 }

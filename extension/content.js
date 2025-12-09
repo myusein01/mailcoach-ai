@@ -1,12 +1,18 @@
 console.log("MailCoach AI content script loaded");
 
-// Fonction utilitaire pour trouver la zone de texte principale de Gmail
+// Zone de texte principale
 function findComposeBox() {
-  // Gmail utilise un div[role="textbox"] pour le contenu
-  return document.querySelector('div[role="textbox"][aria-label="Corps du message"], div[role="textbox"][g_editable="true"]');
+  return document.querySelector(
+    'div[role="textbox"][aria-label="Corps du message"], div[role="textbox"][g_editable="true"]'
+  );
 }
 
-// Crée un petit bouton flottant
+// Champ objet Gmail
+function findSubjectInput() {
+  return document.querySelector('input[name="subjectbox"]');
+}
+
+// Bouton flottant
 function createWidget() {
   const widget = document.createElement("button");
   widget.innerText = "✨ Améliorer avec MailCoach";
@@ -29,41 +35,56 @@ function createWidget() {
 
 async function improveEmail() {
   const box = findComposeBox();
+  const subjectInput = findSubjectInput();
+
   if (!box) {
     alert("Impossible de trouver le contenu du mail 😅");
     return;
   }
 
-  const original = box.innerText.trim();
-  if (!original) {
+  const originalBody = box.innerText.trim();
+  const originalSubject = subjectInput ? subjectInput.value.trim() : "";
+
+  if (!originalBody) {
     alert("Écris d'abord un email avant de l'améliorer 😉");
     return;
   }
 
-  // Appel à ton backend MailCoach
   try {
-    const res = await fetch("https://www.mailcoach-ai.com/api/improve-email", {
+    // En dev local :
+    // const endpoint = "http://localhost:3000/api/improve-email";
+
+    // En prod :
+    const endpoint = "https://www.mailcoach-ai.com/api/improve-email";
+
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: original }),
+      body: JSON.stringify({
+        text: originalBody,
+        subject: originalSubject,
+      }),
     });
 
     const data = await res.json();
-    const improved = data.improved || "";
 
-    if (!improved) {
-      alert("Pas de réponse de MailCoach AI.");
+    if (!res.ok) {
+      console.error("Erreur API:", data);
+      alert("Erreur lors de l'appel à MailCoach AI.");
       return;
     }
 
-    // Confirmation avant de remplacer
-    const ok = confirm("Remplacer ton email par la version améliorée ?");
+    const improvedSubject = data.subject || originalSubject;
+    const improvedBody = data.body || originalBody;
+
+    const ok = confirm(
+      "Remplacer l'objet et le corps par la version améliorée ?"
+    );
     if (ok) {
-      box.innerText = improved;
-    } else {
-      // Option : copier dans le presse-papier
-      await navigator.clipboard.writeText(improved);
-      alert("Version améliorée copiée dans le presse-papier ✅");
+      if (subjectInput && improvedSubject) {
+        subjectInput.value = improvedSubject;
+      }
+      box.innerText = improvedBody;
     }
   } catch (err) {
     console.error(err);
@@ -71,12 +92,11 @@ async function improveEmail() {
   }
 }
 
-// Initialisation
 function init() {
   const widget = createWidget();
   widget.addEventListener("click", improveEmail);
 }
 
 window.addEventListener("load", () => {
-  setTimeout(init, 4000); // on laisse Gmail se charger un peu
+  setTimeout(init, 4000);
 });
