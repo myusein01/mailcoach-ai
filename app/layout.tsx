@@ -1,10 +1,10 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import AuthProvider from "@/components/AuthProvider";
+import { AuthProvider } from "../components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "MailCoach AI",
-  description: "Générateur d’e-mails professionnels avec l’IA",
+  description: "Assistant IA pour rédiger des e-mails pro en quelques secondes.",
 };
 
 export default function RootLayout({
@@ -14,12 +14,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
-        <AuthProvider>
-          <div className="min-h-screen flex items-center justify-center px-4">
-            {children}
-          </div>
-        </AuthProvider>
+      <body className="bg-slate-950 text-slate-100">
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
