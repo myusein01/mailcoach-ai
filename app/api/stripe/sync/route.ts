@@ -5,9 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { dbExec, dbGet } from "@/db/helpers";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 type DbUser = {
   email: string | null;

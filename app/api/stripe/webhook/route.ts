@@ -3,9 +3,7 @@ import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { dbExec, dbGet } from "@/db/helpers";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-11-17.clover",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 type UserEmailRow = { email: string | null };
 
