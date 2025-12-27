@@ -5,9 +5,21 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { stripe } from "@/lib/stripe";
 import { dbGet, dbExec } from "@/db/helpers";
 
-type CheckoutBody = {
-  duration: "monthly" | "6months" | "yearly";
-};
+type PlanKey = "pro_1m" | "pro_6m" | "pro_12m";
+type CheckoutBody = { priceKey: PlanKey };
+
+function resolvePriceId(priceKey: PlanKey) {
+  switch (priceKey) {
+    case "pro_1m":
+      return process.env.STRIPE_PRICE_PRO_MONTHLY;
+    case "pro_6m":
+      return process.env.STRIPE_PRICE_PRO_6MONTHS;
+    case "pro_12m":
+      return process.env.STRIPE_PRICE_PRO_YEARLY;
+    default:
+      return undefined;
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -18,36 +30,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { duration } = (await req.json().catch(() => ({}))) as CheckoutBody;
+    const body = (await req.json().catch(() => ({}))) as Partial<CheckoutBody>;
+    const priceKey = body.priceKey;
 
-    let priceId: string | undefined;
-
-    switch (duration) {
-      case "monthly":
-        priceId = process.env.STRIPE_PRICE_PRO_MONTHLY;
-        break;
-      case "6months":
-        priceId = process.env.STRIPE_PRICE_PRO_6MONTHS;
-        break;
-      case "yearly":
-        priceId = process.env.STRIPE_PRICE_PRO_YEARLY;
-        break;
-      default:
-        return NextResponse.json(
-          { error: "Invalid plan duration" },
-          { status: 400 }
-        );
+    if (!priceKey) {
+      return NextResponse.json(
+        { error: "Missing priceKey" },
+        { status: 400 }
+      );
     }
+
+    const priceId = resolvePriceId(priceKey);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!priceId) {
       return NextResponse.json(
-        { error: "Missing Stripe price for duration" },
+        { error: "Missing Stripe price env for this plan" },
         { status: 500 }
       );
     }
-
     if (!appUrl) {
       return NextResponse.json(
         { error: "Missing NEXT_PUBLIC_APP_URL" },
@@ -83,14 +85,10 @@ export async function POST(req: Request) {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${appUrl}/billing`,
+      cancel_url: `${appUrl}/pricing?canceled=1`,
       allow_promotion_codes: true,
       client_reference_id: email,
-      metadata: {
-        email,
-        plan: "pro",
-        duration,
-      },
+      metadata: { email, priceKey, plan: "pro" },
     });
 
     return NextResponse.json({ url: checkout.url });
