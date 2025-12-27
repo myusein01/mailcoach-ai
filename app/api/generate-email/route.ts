@@ -1,7 +1,7 @@
 // app/api/generate-email/route.ts
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
-import { db, ensureSchema } from "@/db";
+import { db } from "@/db";
 import { randomUUID } from "crypto";
 
 import { getServerSession } from "next-auth";
@@ -47,8 +47,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Table emails existante
-    await ensureSchema();
+    
 
     // Table users pour quota
     await ensureUsersTable();
