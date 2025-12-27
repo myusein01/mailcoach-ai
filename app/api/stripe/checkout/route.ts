@@ -5,7 +5,11 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { stripe } from "@/lib/stripe";
 import { dbGet, dbExec } from "@/db/helpers";
 
-export async function POST() {
+type CheckoutBody = {
+  duration: "monthly" | "6months" | "yearly";
+};
+
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
     const email = session?.user?.email?.toLowerCase();
@@ -14,14 +18,41 @@ export async function POST() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const priceId = process.env.STRIPE_PRICE_ID;
+    const { duration } = (await req.json().catch(() => ({}))) as CheckoutBody;
+
+    let priceId: string | undefined;
+
+    switch (duration) {
+      case "monthly":
+        priceId = process.env.STRIPE_PRICE_PRO_MONTHLY;
+        break;
+      case "6months":
+        priceId = process.env.STRIPE_PRICE_PRO_6MONTHS;
+        break;
+      case "yearly":
+        priceId = process.env.STRIPE_PRICE_PRO_YEARLY;
+        break;
+      default:
+        return NextResponse.json(
+          { error: "Invalid plan duration" },
+          { status: 400 }
+        );
+    }
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!priceId) {
-      return NextResponse.json({ error: "Missing STRIPE_PRICE_ID" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Missing Stripe price for duration" },
+        { status: 500 }
+      );
     }
+
     if (!appUrl) {
-      return NextResponse.json({ error: "Missing NEXT_PUBLIC_APP_URL" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Missing NEXT_PUBLIC_APP_URL" },
+        { status: 500 }
+      );
     }
 
     const existing = await dbGet<{ stripe_customer_id: string | null }>(
@@ -55,12 +86,19 @@ export async function POST() {
       cancel_url: `${appUrl}/billing`,
       allow_promotion_codes: true,
       client_reference_id: email,
-      metadata: { email },
+      metadata: {
+        email,
+        plan: "pro",
+        duration,
+      },
     });
 
     return NextResponse.json({ url: checkout.url });
   } catch (err) {
     console.error("Stripe checkout failed:", err);
-    return NextResponse.json({ error: "Stripe checkout failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Stripe checkout failed" },
+      { status: 500 }
+    );
   }
 }

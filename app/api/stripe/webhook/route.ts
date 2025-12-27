@@ -16,10 +16,10 @@ async function ensureUserExists(email: string) {
     [email, email]
   );
 
-  await dbExec(`UPDATE users SET id = COALESCE(id, ?) WHERE lower(email) = ?`, [
-    email,
-    email,
-  ]);
+  await dbExec(
+    `UPDATE users SET id = COALESCE(id, ?) WHERE lower(email) = ?`,
+    [email, email]
+  );
 }
 
 async function getEmailByCustomerId(customerId: string) {
@@ -45,9 +45,11 @@ async function upsertFromSubscription(sub: any) {
 
   await ensureUserExists(email);
 
-  const status = (sub.status ?? "").toString().toLowerCase();
+  const status = String(sub.status ?? "").toLowerCase();
   const isPro =
-    status === "active" || status === "trialing" || status === "past_due";
+    status === "active" ||
+    status === "trialing" ||
+    status === "past_due";
 
   const periodStartMs =
     typeof sub.current_period_start === "number"
@@ -60,18 +62,14 @@ async function upsertFromSubscription(sub: any) {
       : null;
 
   const cancelAtPeriodEndInt =
-    typeof sub.cancel_at_period_end === "boolean"
-      ? sub.cancel_at_period_end
-        ? 1
-        : 0
-      : 0;
+    sub.cancel_at_period_end === true ? 1 : 0;
 
   const cancelAtMs =
     typeof sub.cancel_at === "number" ? sub.cancel_at * 1000 : null;
 
-  // ✅ SI cancel_at est null mais cancel_at_period_end=true => on met current_period_end
   const finalCancelAtMs =
-    cancelAtMs ?? (cancelAtPeriodEndInt === 1 ? currentPeriodEndMs : null);
+    cancelAtMs ??
+    (cancelAtPeriodEndInt === 1 ? currentPeriodEndMs : null);
 
   await dbExec(
     `
@@ -123,31 +121,30 @@ export async function POST(req: Request) {
 
   try {
     switch (event.type) {
-      // ✅ Paiement terminé => on sync
       case "checkout.session.completed": {
         const session = event.data.object as any;
-        const subId = typeof session.subscription === "string" ? session.subscription : null;
+        const subId =
+          typeof session.subscription === "string"
+            ? session.subscription
+            : null;
         if (subId) {
           const sub = await stripe.subscriptions.retrieve(subId);
-          await upsertFromSubscription(sub as any);
+          await upsertFromSubscription(sub);
         }
         break;
       }
 
-      // ✅ Le PLUS IMPORTANT pour "sync auto après cancel"
-      // Quand tu cliques cancel dans le portal, Stripe envoie subscription.updated avec cancel_at_period_end=true
-      // => on met cancel_at / current_period_end en DB SANS QUE l'utilisateur clique "Return to ..."
-      case "customer.subscription.updated":
-      case "customer.subscription.created": {
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
         const sub = event.data.object as any;
         await upsertFromSubscription(sub);
         break;
       }
 
-      // ✅ Si annulation immédiate / fin de période confirmée
       case "customer.subscription.deleted": {
         const sub = event.data.object as any;
-        const customerId = typeof sub.customer === "string" ? sub.customer : null;
+        const customerId =
+          typeof sub.customer === "string" ? sub.customer : null;
         if (!customerId) break;
 
         const email = await getEmailByCustomerId(customerId);
@@ -175,6 +172,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   } catch (e: any) {
     console.error("Webhook handler error:", e?.message || e);
-    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 500 }
+    );
   }
 }
