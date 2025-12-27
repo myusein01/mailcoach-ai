@@ -15,8 +15,18 @@ function findSubjectInput() {
 }
 
 // === CONFIG API ===
-const API_ENDPOINT = "http://localhost:3000/api/improve-email";
-// PROD : const API_ENDPOINT = "https://www.mailcoach-ai.com/api/improve-email";
+
+// PROD par défaut
+let API_ENDPOINT = "https://www.mailcoach-ai.com/api/improve-email";
+
+// DEV auto si tu es en local (pratique quand tu codes)
+try {
+  // si tu veux forcer DEV, mets ?mailcoach_dev=1 dans l'URL Gmail
+  const url = new URL(window.location.href);
+  const forceDev = url.searchParams.get("mailcoach_dev") === "1";
+  if (forceDev) API_ENDPOINT = "http://localhost:3000/api/improve-email";
+} catch {}
+
 const PRICING_URL = "https://www.mailcoach-ai.com/pricing";
 
 // ===================
