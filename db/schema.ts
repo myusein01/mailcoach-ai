@@ -30,3 +30,14 @@ export const emails = sqliteTable("emails", {
     sql`(strftime('%s', 'now') * 1000)`
   ),
 });
+
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey(), // on va utiliser l'email comme id simple
+  email: text("email").notNull(),
+  name: text("name"),
+  plan: text("plan").notNull().default("free"), // 'free' | 'pro' | 'business'
+  creditsUsed: integer("credits_used").notNull().default(0),
+  periodStart: integer("period_start", { mode: "number" }).notNull(), // timestamp ms
+});

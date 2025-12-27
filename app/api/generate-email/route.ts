@@ -4,9 +4,36 @@ import OpenAI from "openai";
 import { db, ensureSchema } from "@/db";
 import { randomUUID } from "crypto";
 
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+import {
+  ensureUsersTable,
+  getOrCreateUser,
+  canUseCredit,
+  consumeCredit,
+} from "@/lib/billing";
+
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
+
+// Récupère l’email user depuis NextAuth (site) OU depuis body (extension)
+async function resolveUserIdentity(body: any) {
+  const session = await getServerSession(authOptions);
+  const sessionEmail = session?.user?.email || null;
+  const sessionName = session?.user?.name || null;
+
+  const bodyEmail =
+    typeof body?.userEmail === "string" ? body.userEmail.trim() : null;
+  const bodyName =
+    typeof body?.userName === "string" ? body.userName.trim() : null;
+
+  return {
+    email: sessionEmail || bodyEmail,
+    name: sessionName || bodyName || null,
+  };
+}
 
 export async function POST(req: Request) {
   try {
@@ -20,9 +47,42 @@ export async function POST(req: Request) {
       );
     }
 
-    // On s'assure que la table existe
+    // Table emails existante
     await ensureSchema();
 
+    // Table users pour quota
+    await ensureUsersTable();
+
+    // Identité user (site session OU extension body)
+    const { email, name } = await resolveUserIdentity(body);
+
+    if (!email) {
+      return NextResponse.json(
+        {
+          error:
+            "Non authentifié. (Sur l’extension, envoie userEmail dans le body.)",
+        },
+        { status: 401 }
+      );
+    }
+
+    // Quota check
+    const user = await getOrCreateUser(email, name);
+    const check = canUseCredit(user);
+
+    if (!check.allowed) {
+      return NextResponse.json(
+        {
+          error: "Limite gratuite atteinte.",
+          errorCode: "LIMIT_REACHED",
+          limit: check.limit,
+          plan: user.plan,
+        },
+        { status: 402 }
+      );
+    }
+
+    // Prompt + OpenAI
     const prompt = buildPrompt({
       goal,
       context,
@@ -39,16 +99,19 @@ export async function POST(req: Request) {
     });
 
     const firstItem = completion?.output?.[0]?.content?.[0];
-    const email = firstItem?.text ?? "";
+    const emailText = firstItem?.text ?? "";
 
-    if (!email) {
+    if (!emailText) {
       return NextResponse.json(
         { error: "Aucun texte généré." },
         { status: 500 }
       );
     }
 
-    // Sauvegarde en BDD
+    // ✅ Consomme 1 crédit seulement si OK
+    await consumeCredit(user);
+
+    // Sauvegarde en BDD (emails)
     const id = randomUUID();
     const createdAt = Date.now();
 
@@ -69,12 +132,12 @@ export async function POST(req: Request) {
         goal ?? null,
         context ?? null,
         originalEmail ?? null,
-        email,
+        emailText,
         createdAt,
       ],
     });
 
-    return NextResponse.json({ email });
+    return NextResponse.json({ email: emailText });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
