@@ -28,10 +28,6 @@ export default function Home() {
   const [showContact, setShowContact] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
 
-  // ✅ AJOUT: Privacy / Terms modals
-  const [showPrivacy, setShowPrivacy] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
-
   // ✅ FIX TS: status parfois mal inféré => on le force en union correcte
   const authStatus = status as "loading" | "authenticated" | "unauthenticated";
 
@@ -176,6 +172,15 @@ export default function Home() {
     router.push("/onboarding");
   };
 
+  // ✅ AJOUT: liens vers tes pages existantes
+  const openPrivacy = () => {
+    window.location.href = "/privacy";
+  };
+
+  const openTerms = () => {
+    window.location.href = "/terms";
+  };
+
   const formatPeriodEnd = (value: Me["current_period_end"]) => {
     if (value === null || value === undefined) return null;
 
@@ -249,7 +254,9 @@ export default function Home() {
 
       setShowContact(false);
       form.reset();
-      alert("Merci pour votre message, nous reviendrons vers vous dans les plus bréfs délais.");
+      alert(
+        "Merci pour votre message, nous reviendrons vers vous dans les plus bréfs délais."
+      );
     } catch (e) {
       console.error(e);
       alert("Erreur réseau.");
@@ -481,16 +488,16 @@ export default function Home() {
               Besoin d’aide ? Contacte-nous.
             </button>
 
-            {/* ✅ AJOUT: liens modales */}
+            {/* ✅ MODIF: au lieu de modales, on redirige vers tes pages existantes */}
             <button
-              onClick={() => setShowPrivacy(true)}
+              onClick={openPrivacy}
               className="hover:text-slate-300 transition underline underline-offset-4"
             >
               Politique de confidentialité
             </button>
 
             <button
-              onClick={() => setShowTerms(true)}
+              onClick={openTerms}
               className="hover:text-slate-300 transition underline underline-offset-4"
             >
               Conditions d’utilisation
@@ -574,94 +581,6 @@ export default function Home() {
                 (Tu peux laisser le sujet vide. On utilise ton email de connexion pour te répondre.)
               </p>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* ✅ AJOUT: PRIVACY MODAL */}
-      {showPrivacy && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setShowPrivacy(false);
-          }}
-        >
-          <div className="w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-800 p-6 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <h3 className="text-lg font-semibold">Politique de confidentialité</h3>
-                <p className="text-sm text-slate-400 mt-1">
-                  Résumé clair (tu peux adapter ce texte quand tu veux).
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowPrivacy(false)}
-                className="text-slate-400 hover:text-slate-200 transition"
-                aria-label="Fermer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="text-sm text-slate-200 space-y-4">
-              <p>
-                MailCoach AI collecte uniquement les informations nécessaires au fonctionnement du service
-                (ex: email de connexion, statut d’abonnement, compteurs d’usage).
-              </p>
-              <p>
-                Le contenu des emails envoyé à l’API sert uniquement à générer l’amélioration demandée.
-                Il n’est pas vendu.
-              </p>
-              <p>
-                Tu peux demander la suppression de tes données via le formulaire “Contact”.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ✅ AJOUT: TERMS MODAL */}
-      {showTerms && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) setShowTerms(false);
-          }}
-        >
-          <div className="w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-800 p-6 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div>
-                <h3 className="text-lg font-semibold">Conditions d’utilisation</h3>
-                <p className="text-sm text-slate-400 mt-1">
-                  Résumé clair (tu peux adapter ce texte quand tu veux).
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setShowTerms(false)}
-                className="text-slate-400 hover:text-slate-200 transition"
-                aria-label="Fermer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="text-sm text-slate-200 space-y-4">
-              <p>
-                MailCoach AI fournit des suggestions d’amélioration. Tu restes responsable du contenu final
-                envoyé à tes destinataires.
-              </p>
-              <p>
-                Toute utilisation abusive (spam, harcèlement, contenu illégal) peut entraîner une suspension
-                du service.
-              </p>
-              <p>
-                Les plans Pro sont soumis aux conditions de facturation Stripe (résiliation, fin de période, etc.).
-              </p>
-            </div>
           </div>
         </div>
       )}
