@@ -28,6 +28,10 @@ export default function Home() {
   const [showContact, setShowContact] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
 
+  // ✅ AJOUT: Privacy / Terms modals
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+
   // ✅ FIX TS: status parfois mal inféré => on le force en union correcte
   const authStatus = status as "loading" | "authenticated" | "unauthenticated";
 
@@ -300,8 +304,6 @@ export default function Home() {
             >
               Modifier mon profil
             </button>
-
-            
           </div>
 
           <p className="text-xs text-slate-400">
@@ -470,13 +472,30 @@ export default function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-14 flex justify-between items-center text-xs text-slate-500">
-          <button
-            onClick={() => setShowContact(true)}
-            className="hover:text-slate-300 transition underline underline-offset-4"
-          >
-            Besoin d’aide ? Contacte-nous.
-          </button>
+        <footer className="mt-14 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs text-slate-500">
+          <div className="flex flex-wrap items-center gap-4">
+            <button
+              onClick={() => setShowContact(true)}
+              className="hover:text-slate-300 transition underline underline-offset-4"
+            >
+              Besoin d’aide ? Contacte-nous.
+            </button>
+
+            {/* ✅ AJOUT: liens modales */}
+            <button
+              onClick={() => setShowPrivacy(true)}
+              className="hover:text-slate-300 transition underline underline-offset-4"
+            >
+              Politique de confidentialité
+            </button>
+
+            <button
+              onClick={() => setShowTerms(true)}
+              className="hover:text-slate-300 transition underline underline-offset-4"
+            >
+              Conditions d’utilisation
+            </button>
+          </div>
 
           <button onClick={() => signOut()} className="hover:text-slate-300 transition">
             Se déconnecter
@@ -555,6 +574,94 @@ export default function Home() {
                 (Tu peux laisser le sujet vide. On utilise ton email de connexion pour te répondre.)
               </p>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ AJOUT: PRIVACY MODAL */}
+      {showPrivacy && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setShowPrivacy(false);
+          }}
+        >
+          <div className="w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-800 p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <h3 className="text-lg font-semibold">Politique de confidentialité</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  Résumé clair (tu peux adapter ce texte quand tu veux).
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowPrivacy(false)}
+                className="text-slate-400 hover:text-slate-200 transition"
+                aria-label="Fermer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="text-sm text-slate-200 space-y-4">
+              <p>
+                MailCoach AI collecte uniquement les informations nécessaires au fonctionnement du service
+                (ex: email de connexion, statut d’abonnement, compteurs d’usage).
+              </p>
+              <p>
+                Le contenu des emails envoyé à l’API sert uniquement à générer l’amélioration demandée.
+                Il n’est pas vendu.
+              </p>
+              <p>
+                Tu peux demander la suppression de tes données via le formulaire “Contact”.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ AJOUT: TERMS MODAL */}
+      {showTerms && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) setShowTerms(false);
+          }}
+        >
+          <div className="w-full max-w-3xl rounded-2xl bg-slate-900 border border-slate-800 p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <h3 className="text-lg font-semibold">Conditions d’utilisation</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  Résumé clair (tu peux adapter ce texte quand tu veux).
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowTerms(false)}
+                className="text-slate-400 hover:text-slate-200 transition"
+                aria-label="Fermer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="text-sm text-slate-200 space-y-4">
+              <p>
+                MailCoach AI fournit des suggestions d’amélioration. Tu restes responsable du contenu final
+                envoyé à tes destinataires.
+              </p>
+              <p>
+                Toute utilisation abusive (spam, harcèlement, contenu illégal) peut entraîner une suspension
+                du service.
+              </p>
+              <p>
+                Les plans Pro sont soumis aux conditions de facturation Stripe (résiliation, fin de période, etc.).
+              </p>
+            </div>
           </div>
         </div>
       )}
