@@ -1,10 +1,18 @@
 {
   "manifest_version": 3,
   "name": "MailCoach AI for Gmail",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Améliore automatiquement tes emails Gmail avec MailCoach AI.",
-  "permissions": ["scripting", "activeTab", "storage"],
-  "host_permissions": ["https://mail.google.com/*", "https://www.mailcoach-ai.com/*"],
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://www.mailcoach-ai.com/*"
+  ],
   "content_scripts": [
     {
       "matches": ["https://mail.google.com/*"],
