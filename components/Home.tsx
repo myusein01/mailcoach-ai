@@ -296,7 +296,7 @@ export default function Home() {
               onClick={openInstall}
               className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
             >
-              ✨ Installer l’extension et redémarrer Gmail
+              ✨ Installer l’extension Gmail
             </button>
 
             <button
@@ -327,7 +327,7 @@ export default function Home() {
             <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">1.</span>
-                Installe l’extension Gmail
+                Installe l’extension et redémarre Gmail
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">2.</span>
