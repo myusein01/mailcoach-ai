@@ -114,10 +114,8 @@ export async function POST(req: Request) {
       case "checkout.session.completed": {
         const session = event.data.object as any;
 
-        // ✅ NEW: copie les infos saisies sur Checkout (name/adresse) dans le Customer Stripe
-        const customerId =
-          typeof session.customer === "string" ? session.customer : null;
-
+        // ✅ copie name/adresse saisis sur Checkout -> Customer Stripe
+        const customerId = typeof session.customer === "string" ? session.customer : null;
         if (customerId && session.customer_details) {
           const cd = session.customer_details;
 
@@ -129,7 +127,6 @@ export async function POST(req: Request) {
 
         const subId =
           typeof session.subscription === "string" ? session.subscription : null;
-
         if (subId) {
           const sub = await stripe.subscriptions.retrieve(subId);
           await upsertFromSubscription(sub);
