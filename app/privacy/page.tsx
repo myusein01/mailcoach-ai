@@ -26,9 +26,16 @@ export default function PrivacyPage() {
               <li>Adresse e-mail (via connexion Google)</li>
               <li>Nom (si fourni par l’utilisateur)</li>
               <li>Contenu des e-mails soumis à amélioration</li>
-              <li>Informations de profil optionnelles (signature : nom, téléphone, etc.)</li>
+              <li>
+                Informations de profil optionnelles (signature : nom, téléphone,
+                etc.)
+              </li>
               <li>Informations d’abonnement (statut Stripe, identifiants Stripe)</li>
             </ul>
+            <p className="mt-3 text-slate-300">
+              Aucune donnée sensible (mot de passe, informations bancaires) n’est
+              collectée par MailCoach AI.
+            </p>
           </section>
 
           <section>
@@ -43,6 +50,11 @@ export default function PrivacyPage() {
               <li>Ajouter une signature personnalisée si configurée</li>
               <li>Fournir le support client</li>
             </ul>
+            <p className="mt-3 text-slate-300">
+              Certaines données peuvent également être utilisées de manière
+              agrégée et anonymisée à des fins statistiques et d’amélioration du
+              produit.
+            </p>
           </section>
 
           <section>
@@ -87,9 +99,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold">8. Contact</h2>
-            <p className="mt-2 text-slate-300">
-              Pour toute question :
-            </p>
+            <p className="mt-2 text-slate-300">Pour toute question :</p>
             <div className="mt-2 rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-slate-300">
               <p>📧 support@mailcoach-ai.com</p>
               <p>🌐 https://www.mailcoach-ai.com</p>

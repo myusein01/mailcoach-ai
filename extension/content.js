@@ -1,48 +1,43 @@
+// content.js (VERSION COMPLÈTE – bouton flottant + langue actuelle au-dessus + loading sur le bouton)
 console.log("MailCoach AI content script loaded");
 
-// ================= CONFIG =================
-
-// PROD par défaut
-let API_ENDPOINT = "https://www.mailcoach-ai.com/api/improve-email";
-const PRICING_URL = "https://www.mailcoach-ai.com/pricing";
-
-// DEV auto si forçage ?mailcoach_dev=1
-try {
-  const url = new URL(window.location.href);
-  if (url.searchParams.get("mailcoach_dev") === "1") {
-    API_ENDPOINT = "http://localhost:3000/api/improve-email";
-  }
-} catch {}
-
-// ================= UTILS =================
-
+// Zone de texte principale (corps du mail)
 function findComposeBox() {
   return document.querySelector(
     'div[role="textbox"][aria-label="Corps du message"], div[role="textbox"][g_editable="true"]'
   );
 }
 
+// Champ objet Gmail
 function findSubjectInput() {
   return document.querySelector('input[name="subjectbox"]');
 }
 
-// ================= LANGUES =================
+// === CONFIG API ===
+// PROD par défaut
+let API_ENDPOINT = "https://www.mailcoach-ai.com/api/improve-email";
 
+const PRICING_URL = "https://www.mailcoach-ai.com/pricing";
+const LOGIN_URL = "https://www.mailcoach-ai.com/login";
+// ===================
+
+// ---------- LANGUES ----------
 const LANGS = [
   { code: "fr", label: "Français" },
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
   { code: "de", label: "Deutsch" },
   { code: "it", label: "Italiano" },
-  { code: "pt", label: "Português" }
+  { code: "pt", label: "Português" },
 ];
 
 function langLabel(code) {
-  return LANGS.find((l) => l.code === code)?.label || code;
+  const found = LANGS.find((l) => l.code === code);
+  return found ? found.label : code;
 }
 
 function langChipText(code) {
-  return (code || "fr").toUpperCase();
+  return (code || "fr").toUpperCase(); // ex: FR / EN / ES
 }
 
 function getStoredLanguage() {
@@ -59,34 +54,70 @@ function setStoredLanguage(lang) {
   });
 }
 
-// ================= IDENTITÉ =================
+// ---------- IDENTITÉ GMAIL ----------
+function extractEmailFromText(text) {
+  if (!text) return null;
+  const match = String(text).match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  return match ? match[0].toLowerCase() : null;
+}
 
 function getActiveGmailEmail() {
-  const text = document.body?.innerText || "";
-  const match = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-  return match ? match[0].toLowerCase() : null;
+  // 1) souvent dans le bouton compte Google (tooltip/aria-label)
+  const candidates = [];
+
+  const accountBtn =
+    document.querySelector('a[aria-label*="@"]') ||
+    document.querySelector('a[aria-label*="Google Account"]') ||
+    document.querySelector('a[aria-label*="Compte Google"]') ||
+    document.querySelector('a[href*="SignOutOptions"]') ||
+    document.querySelector('a[href*="accounts.google.com"]');
+
+  if (accountBtn) {
+    candidates.push(accountBtn.getAttribute("aria-label"));
+    candidates.push(accountBtn.getAttribute("title"));
+  }
+
+  // 2) certains éléments contiennent l’email dans data-tooltip / aria-label
+  const tooltipEl =
+    document.querySelector('[data-tooltip*="@"]') ||
+    document.querySelector('[aria-label*="@"]') ||
+    document.querySelector('[title*="@"]');
+
+  if (tooltipEl) {
+    candidates.push(tooltipEl.getAttribute("data-tooltip"));
+    candidates.push(tooltipEl.getAttribute("aria-label"));
+    candidates.push(tooltipEl.getAttribute("title"));
+  }
+
+  // 3) fallback brut : texte global (moins fiable)
+  candidates.push(document.body?.innerText || "");
+
+  for (const c of candidates) {
+    const email = extractEmailFromText(c);
+    if (email) return email;
+  }
+
+  return null;
 }
 
 function getUserIdentity() {
   return new Promise((resolve) => {
     const gmail = getActiveGmailEmail();
-
     chrome.storage.sync.get(["mailcoach_userEmail"], (res) => {
       let email = gmail || res.mailcoach_userEmail;
 
       if (!email) {
-        email = prompt("Entre ton email MailCoach AI :");
+        email = prompt("Entre ton email sur lequel tu veux utiliser MailCoach :");
         if (!email) return resolve({ userEmail: null });
         chrome.storage.sync.set({ mailcoach_userEmail: email });
       }
 
-      resolve({ userEmail: email.toLowerCase() });
+      resolve({ userEmail: String(email).toLowerCase() });
     });
   });
 }
 
-// ================= UI =================
-
+// ---------- UI : Bouton principal ----------
 function createMainButton() {
   const btn = document.createElement("button");
   btn.id = "mailcoach-main-btn";
@@ -104,8 +135,12 @@ function createMainButton() {
     color: "white",
     fontSize: "13px",
     cursor: "pointer",
-    boxShadow: "0 10px 30px rgba(15,23,42,0.5)"
+    boxShadow: "0 10px 30px rgba(15,23,42,0.5)",
+    transition: "transform 120ms ease, opacity 120ms ease, background 120ms ease",
   });
+
+  btn.onmouseenter = () => (btn.style.transform = "translateY(-1px)");
+  btn.onmouseleave = () => (btn.style.transform = "translateY(0px)");
 
   document.body.appendChild(btn);
   return btn;
@@ -115,25 +150,30 @@ function setMainButtonLoading(btn, isLoading) {
   if (!btn) return;
 
   if (isLoading) {
-    btn.dataset.prev = btn.innerText;
+    btn.dataset.prevText = btn.innerText;
     btn.innerText = "⏳ Amélioration…";
     btn.disabled = true;
-    btn.style.opacity = "0.8";
+    btn.style.opacity = "0.85";
+    btn.style.cursor = "not-allowed";
+    btn.style.background = "#2563eb";
   } else {
-    btn.innerText = btn.dataset.prev || "✨ Améliorer avec MailCoach";
+    btn.innerText = btn.dataset.prevText || "✨ Améliorer avec MailCoach";
     btn.disabled = false;
     btn.style.opacity = "1";
+    btn.style.cursor = "pointer";
+    btn.style.background = "#3b82f6";
   }
 }
 
-function createLanguageChip(lang) {
+// ---------- UI : Chip langue (au-dessus) ----------
+function createLanguageChip(initialLangCode) {
   const chip = document.createElement("button");
   chip.id = "mailcoach-lang-btn";
-  chip.innerText = `🌐 ${langChipText(lang)}`;
+  chip.innerText = `🌐 ${langChipText(initialLangCode)}`;
 
   Object.assign(chip.style, {
     position: "fixed",
-    bottom: "66px",
+    bottom: "66px", // ✅ au-dessus du bouton principal
     right: "20px",
     zIndex: "9999",
     padding: "8px 14px",
@@ -142,79 +182,204 @@ function createLanguageChip(lang) {
     background: "#020617",
     color: "#e5e7eb",
     fontSize: "12px",
-    cursor: "pointer"
+    cursor: "pointer",
+    boxShadow: "0 6px 20px rgba(15,23,42,0.45)",
   });
 
   document.body.appendChild(chip);
   return chip;
 }
 
-// ================= ACTION =================
+function updateLanguageChip(chip, langCode) {
+  if (!chip) return;
+  chip.innerText = `🌐 ${langChipText(langCode)}`;
+  chip.title = `Langue actuelle : ${langLabel(langCode)} (${langChipText(
+    langCode
+  )})`;
+}
 
-async function improveEmail(btn) {
+// ---------- UI : Modal langue ----------
+function createLanguageModal(onPick) {
+  const backdrop = document.createElement("div");
+  backdrop.style.position = "fixed";
+  backdrop.style.inset = "0";
+  backdrop.style.zIndex = "10000";
+  backdrop.style.background = "rgba(0,0,0,0.55)";
+  backdrop.style.display = "none";
+  backdrop.style.alignItems = "center";
+  backdrop.style.justifyContent = "center";
+
+  const modal = document.createElement("div");
+  Object.assign(modal.style, {
+    background: "#020617",
+    borderRadius: "14px",
+    padding: "16px",
+    width: "320px",
+    border: "1px solid #334155",
+    color: "#e5e7eb",
+  });
+
+  const title = document.createElement("div");
+  title.innerText = "Choisir la langue";
+  title.style.fontWeight = "700";
+  title.style.marginBottom = "10px";
+
+  const hint = document.createElement("div");
+  hint.innerText =
+    "La langue choisie sera utilisée pour la prochaine amélioration.";
+  hint.style.fontSize = "12px";
+  hint.style.color = "#94a3b8";
+  hint.style.marginBottom = "12px";
+
+  modal.appendChild(title);
+  modal.appendChild(hint);
+
+  LANGS.forEach((l) => {
+    const btn = document.createElement("button");
+    btn.innerText = `${l.label} (${l.code.toUpperCase()})`;
+
+    Object.assign(btn.style, {
+      width: "100%",
+      marginBottom: "8px",
+      padding: "10px",
+      borderRadius: "12px",
+      border: "1px solid #334155",
+      background: "#0f172a",
+      color: "white",
+      cursor: "pointer",
+      textAlign: "left",
+    });
+
+    btn.onmouseenter = () => (btn.style.background = "#111c33");
+    btn.onmouseleave = () => (btn.style.background = "#0f172a");
+
+    btn.onclick = async () => {
+      await setStoredLanguage(l.code);
+      backdrop.style.display = "none";
+      onPick(l.code);
+    };
+
+    modal.appendChild(btn);
+  });
+
+  backdrop.appendChild(modal);
+
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) backdrop.style.display = "none";
+  };
+
+  document.body.appendChild(backdrop);
+  return backdrop;
+}
+
+// ---------- ACTION PRINCIPALE ----------
+async function improveEmail(mainBtn) {
   const box = findComposeBox();
-  if (!box) return alert("Email introuvable.");
+  if (!box) {
+    alert("Contenu du mail introuvable. Veuillez réessayer.");
+    return;
+  }
 
-  const body = box.innerText.trim();
-  if (!body) return alert("Écris un email avant.");
-
+  const originalBody = box.innerText.trim();
   const subjectInput = findSubjectInput();
-  const subject = subjectInput?.value.trim() || "";
+  const originalSubject = subjectInput ? subjectInput.value.trim() : "";
+
+  if (!originalBody) {
+    alert("Veuillez d'abord écrire un email avant de l'améliorer.");
+    return;
+  }
 
   const { userEmail } = await getUserIdentity();
-  if (!userEmail) return;
+  if (!userEmail) {
+    alert("Email manquant. Impossible d'utiliser l’extension.");
+    return;
+  }
 
   const language = await getStoredLanguage();
-  setMainButtonLoading(btn, true);
+
+  setMainButtonLoading(mainBtn, true);
 
   try {
     const res = await fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: body, subject, userEmail, language })
+      body: JSON.stringify({
+        text: originalBody,
+        subject: originalSubject,
+        userEmail,
+        language, // ✅ langue choisie
+      }),
     });
 
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      if (data?.errorCode === "LIMIT_REACHED") {
-        if (confirm("Limite atteinte. Passer Pro ?")) {
-          window.open(PRICING_URL, "_blank");
-        }
+      console.error("Erreur API:", data);
+
+      if (data && data.errorCode === "LIMIT_REACHED") {
+        const goPro = confirm(
+          "Tu as atteint ta limite gratuite sur MailCoach AI.\n\n" +
+            "Clique OK pour passer en Pro et débloquer les améliorations illimitées."
+        );
+        if (goPro) window.open(LOGIN_URL, "_blank");
       } else {
-        alert(data?.error || "Erreur MailCoach.");
+        alert(data?.error || "Erreur lors de l'appel à MailCoach AI.");
       }
       return;
     }
 
-    if (!confirm("Remplacer le mail par la version améliorée ?")) return;
+    const improvedSubject = data.subject || originalSubject;
+    const improvedBody = data.body || originalBody;
 
-    if (subjectInput && data.subject) {
-      subjectInput.value = data.subject;
+    const ok = confirm(
+      `Améliorer votre mail ?\n\nLangue: ${langLabel(
+        language
+      )} (${language.toUpperCase()})`
+    );
+    if (!ok) return;
+
+    // objet
+    if (subjectInput && improvedSubject) {
+      subjectInput.value = improvedSubject;
       subjectInput.dispatchEvent(new Event("input", { bubbles: true }));
+      subjectInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
-    box.innerHTML = data.body.split("\n").join("<br>");
+    // corps (HTML avec <br>)
+    const html = improvedBody
+      .split("\n")
+      .map((line) => line.trim())
+      .join("<br>");
+
+    box.innerHTML = html;
     box.dispatchEvent(new Event("input", { bubbles: true }));
-  } catch {
-    alert("Erreur réseau.");
+    box.dispatchEvent(new Event("change", { bubbles: true }));
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de l'appel à MailCoach AI.");
   } finally {
-    setMainButtonLoading(btn, false);
+    setMainButtonLoading(mainBtn, false);
   }
 }
 
-// ================= INIT =================
-
+// ---------- INIT ----------
 async function init() {
-  if (document.getElementById("mailcoach-main-btn")) return;
+  const initialLang = await getStoredLanguage();
+  const mainBtn = createMainButton();
+  const langChip = createLanguageChip(initialLang);
 
-  const lang = await getStoredLanguage();
-  const btn = createMainButton();
-  createLanguageChip(lang);
+  updateLanguageChip(langChip, initialLang);
 
-  btn.addEventListener("click", () => improveEmail(btn));
+  const modal = createLanguageModal((newLang) => {
+    updateLanguageChip(langChip, newLang);
+  });
+
+  mainBtn.addEventListener("click", () => improveEmail(mainBtn));
+  langChip.addEventListener("click", () => {
+    modal.style.display = "flex";
+  });
 }
 
 window.addEventListener("load", () => {
-  setTimeout(init, 3000);
+  setTimeout(init, 4000);
 });
