@@ -331,7 +331,7 @@ export default function Home() {
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">2.</span>
-                Rédige ton e-mail normalement
+                Rédige ton e-mail comme d'habitude
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">3.</span>
