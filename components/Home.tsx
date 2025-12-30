@@ -115,8 +115,9 @@ export default function Home() {
   const userNameSafe = session.user?.name ?? null;
 
   const openInstall = () => {
-    alert(
-      "👉 Installation bientôt en 1 clic.\n\nPour l’instant :\n1) Va sur chrome://extensions\n2) Active le mode développeur\n3) Charge le dossier de l’extension"
+    window.open(
+      "https://chrome.google.com/webstore/detail/mailcoach-ai-for-gmail/ejddkpobljmcmoimcmmacikkjcecnfhk",
+      "_blank"
     );
   };
 
@@ -488,7 +489,6 @@ export default function Home() {
               Besoin d’aide ? Contacte-nous.
             </button>
 
-            {/* ✅ MODIF: au lieu de modales, on redirige vers tes pages existantes */}
             <button
               onClick={openPrivacy}
               className="hover:text-slate-300 transition underline underline-offset-4"
