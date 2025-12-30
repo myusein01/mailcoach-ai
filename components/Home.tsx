@@ -327,7 +327,12 @@ export default function Home() {
             <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">1.</span>
-                Installe et redémarre Gmail
+                Installe l'extension.
+              </li>
+
+               <li className="flex gap-3">
+                <span className="text-blue-400 font-bold">1.</span>
+                Redémarre Gmail
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">2.</span>
