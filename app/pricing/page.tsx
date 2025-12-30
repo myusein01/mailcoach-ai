@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 type PlanKey = "pro_1m" | "pro_6m" | "pro_12m";
@@ -135,6 +136,17 @@ function PricingCard({
   );
 }
 
+type BillingInfo = {
+  kind: "personal" | "company";
+  fullName: string;
+  companyName?: string;
+  vat?: string;
+  addressLine1?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string; // ex: "BE"
+};
+
 export default function PricingPage({
   searchParams,
 }: {
@@ -143,12 +155,35 @@ export default function PricingPage({
   const paid = searchParams?.paid === "1";
   const canceled = searchParams?.canceled === "1";
 
-  async function goCheckout(priceKey: PlanKey) {
+  const [billingOpen, setBillingOpen] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(null);
+
+  const [billing, setBilling] = useState<BillingInfo>({
+    kind: "personal",
+    fullName: "",
+    companyName: "",
+    vat: "",
+    addressLine1: "",
+    city: "",
+    postalCode: "",
+    country: "BE",
+  });
+
+  const isCompany = billing.kind === "company";
+
+  const canSubmit = useMemo(() => {
+    if (!billing.fullName.trim()) return false;
+    if (isCompany && !String(billing.companyName || "").trim()) return false;
+    return true;
+  }, [billing.fullName, billing.companyName, isCompany]);
+
+  async function goCheckout(priceKey: PlanKey, billingInfo?: BillingInfo) {
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceKey }),
+        body: JSON.stringify({ priceKey, billing: billingInfo ?? null }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -167,6 +202,26 @@ export default function PricingPage({
     } catch (e) {
       console.error(e);
       alert("Erreur réseau.");
+    }
+  }
+
+  function openBillingModal(plan: PlanKey) {
+    setSelectedPlan(plan);
+    setBillingOpen(true);
+  }
+
+  async function submitBillingAndCheckout() {
+    if (!selectedPlan) return;
+    if (!canSubmit) {
+      alert("Merci de compléter les infos de facturation.");
+      return;
+    }
+
+    setBillingLoading(true);
+    try {
+      await goCheckout(selectedPlan, billing);
+    } finally {
+      setBillingLoading(false);
     }
   }
 
@@ -191,7 +246,6 @@ export default function PricingPage({
             </p>
           </div>
 
-          {/* ✅ Garder Dashboard, supprimer Se connecter */}
           <div className="flex flex-wrap gap-2">
             <Link
               href="/"
@@ -213,7 +267,7 @@ export default function PricingPage({
             priceMain="3,99€"
             priceSuffix={<>/ mois</>}
             badge={{ text: "Flexible" }}
-            onClick={() => goCheckout("pro_1m")}
+            onClick={() => openBillingModal("pro_1m")}
           />
 
           <PricingCard
@@ -221,7 +275,7 @@ export default function PricingPage({
             priceMain="19,99€"
             priceSuffix={<>/ 6 mois</>}
             badge={{ text: "1 mois offert", tone: "primary" }}
-            onClick={() => goCheckout("pro_6m")}
+            onClick={() => openBillingModal("pro_6m")}
           />
 
           <PricingCard
@@ -230,7 +284,7 @@ export default function PricingPage({
             priceSuffix={<>/ an</>}
             badge={{ text: "3 mois offerts", tone: "primary" }}
             highlight
-            onClick={() => goCheckout("pro_12m")}
+            onClick={() => openBillingModal("pro_12m")}
           />
         </section>
 
@@ -271,6 +325,155 @@ export default function PricingPage({
           © {new Date().getFullYear()} MailCoach AI
         </footer>
       </div>
+
+      {/* ✅ MODAL : infos de facturation */}
+      {billingOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !billingLoading) setBillingOpen(false);
+          }}
+        >
+          <div className="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 p-6">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <h3 className="text-lg font-semibold">Infos de facturation</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  Si c’est un achat société, renseigne le nom + TVA (optionnel) pour la facture.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                disabled={billingLoading}
+                onClick={() => setBillingOpen(false)}
+                className="text-slate-400 hover:text-slate-200 transition"
+                aria-label="Fermer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => setBilling((b) => ({ ...b, kind: "personal" }))}
+                className={`px-3 py-2 rounded-xl border text-sm ${
+                  billing.kind === "personal"
+                    ? "border-blue-500 bg-blue-500/10 text-blue-100"
+                    : "border-slate-700 text-slate-200 hover:bg-slate-800/40"
+                }`}
+              >
+                Particulier
+              </button>
+              <button
+                type="button"
+                onClick={() => setBilling((b) => ({ ...b, kind: "company" }))}
+                className={`px-3 py-2 rounded-xl border text-sm ${
+                  billing.kind === "company"
+                    ? "border-blue-500 bg-blue-500/10 text-blue-100"
+                    : "border-slate-700 text-slate-200 hover:bg-slate-800/40"
+                }`}
+              >
+                Société
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <input
+                value={billing.fullName}
+                onChange={(e) => setBilling((b) => ({ ...b, fullName: e.target.value }))}
+                placeholder="Nom / Prénom (obligatoire)"
+                className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              {isCompany && (
+                <>
+                  <input
+                    value={billing.companyName || ""}
+                    onChange={(e) =>
+                      setBilling((b) => ({ ...b, companyName: e.target.value }))
+                    }
+                    placeholder="Nom de la société (obligatoire si achat pro)"
+                    className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <input
+                    value={billing.vat || ""}
+                    onChange={(e) => setBilling((b) => ({ ...b, vat: e.target.value }))}
+                    placeholder="N° TVA (optionnel)"
+                    className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </>
+              )}
+
+              <input
+                value={billing.addressLine1 || ""}
+                onChange={(e) =>
+                  setBilling((b) => ({ ...b, addressLine1: e.target.value }))
+                }
+                placeholder="Adresse (rue, numéro) (optionnel)"
+                className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  value={billing.postalCode || ""}
+                  onChange={(e) =>
+                    setBilling((b) => ({ ...b, postalCode: e.target.value }))
+                  }
+                  placeholder="Code postal (optionnel)"
+                  className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  value={billing.city || ""}
+                  onChange={(e) => setBilling((b) => ({ ...b, city: e.target.value }))}
+                  placeholder="Ville (optionnel)"
+                  className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  value={billing.country || "BE"}
+                  onChange={(e) =>
+                    setBilling((b) => ({ ...b, country: e.target.value.toUpperCase() }))
+                  }
+                  placeholder="Pays (ex: BE, FR)"
+                  className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
+                <div className="text-[11px] text-slate-400 flex items-center">
+                  Astuce : Stripe peut aussi demander la TVA sur la page de paiement.
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  disabled={billingLoading}
+                  onClick={() => setBillingOpen(false)}
+                  className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 disabled:opacity-50"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  type="button"
+                  disabled={billingLoading || !canSubmit}
+                  onClick={submitBillingAndCheckout}
+                  className="rounded-xl bg-blue-500 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-500/90 disabled:opacity-60"
+                >
+                  {billingLoading ? "Redirection…" : "Continuer vers paiement"}
+                </button>
+              </div>
+
+              <p className="text-[11px] text-slate-500">
+                On utilise ces infos uniquement pour générer une facture plus complète (nom/société/adresse).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

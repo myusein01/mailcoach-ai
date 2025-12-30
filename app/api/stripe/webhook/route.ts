@@ -46,30 +46,20 @@ async function upsertFromSubscription(sub: any) {
   await ensureUserExists(email);
 
   const status = String(sub.status ?? "").toLowerCase();
-  const isPro =
-    status === "active" ||
-    status === "trialing" ||
-    status === "past_due";
+  const isPro = status === "active" || status === "trialing" || status === "past_due";
 
   const periodStartMs =
-    typeof sub.current_period_start === "number"
-      ? sub.current_period_start * 1000
-      : null;
+    typeof sub.current_period_start === "number" ? sub.current_period_start * 1000 : null;
 
   const currentPeriodEndMs =
-    typeof sub.current_period_end === "number"
-      ? sub.current_period_end * 1000
-      : null;
+    typeof sub.current_period_end === "number" ? sub.current_period_end * 1000 : null;
 
-  const cancelAtPeriodEndInt =
-    sub.cancel_at_period_end === true ? 1 : 0;
+  const cancelAtPeriodEndInt = sub.cancel_at_period_end === true ? 1 : 0;
 
-  const cancelAtMs =
-    typeof sub.cancel_at === "number" ? sub.cancel_at * 1000 : null;
+  const cancelAtMs = typeof sub.cancel_at === "number" ? sub.cancel_at * 1000 : null;
 
   const finalCancelAtMs =
-    cancelAtMs ??
-    (cancelAtPeriodEndInt === 1 ? currentPeriodEndMs : null);
+    cancelAtMs ?? (cancelAtPeriodEndInt === 1 ? currentPeriodEndMs : null);
 
   await dbExec(
     `
@@ -123,10 +113,23 @@ export async function POST(req: Request) {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as any;
+
+        // ✅ NEW: copie les infos saisies sur Checkout (name/adresse) dans le Customer Stripe
+        const customerId =
+          typeof session.customer === "string" ? session.customer : null;
+
+        if (customerId && session.customer_details) {
+          const cd = session.customer_details;
+
+          await stripe.customers.update(customerId, {
+            name: cd.name ?? undefined,
+            address: cd.address ?? undefined,
+          });
+        }
+
         const subId =
-          typeof session.subscription === "string"
-            ? session.subscription
-            : null;
+          typeof session.subscription === "string" ? session.subscription : null;
+
         if (subId) {
           const sub = await stripe.subscriptions.retrieve(subId);
           await upsertFromSubscription(sub);
@@ -143,8 +146,7 @@ export async function POST(req: Request) {
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as any;
-        const customerId =
-          typeof sub.customer === "string" ? sub.customer : null;
+        const customerId = typeof sub.customer === "string" ? sub.customer : null;
         if (!customerId) break;
 
         const email = await getEmailByCustomerId(customerId);
@@ -172,9 +174,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   } catch (e: any) {
     console.error("Webhook handler error:", e?.message || e);
-    return NextResponse.json(
-      { error: "Webhook handler failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
   }
 }
