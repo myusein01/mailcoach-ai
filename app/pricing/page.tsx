@@ -339,7 +339,7 @@ export default function PricingPage({
               <div>
                 <h3 className="text-lg font-semibold">Infos de facturation</h3>
                 <p className="text-sm text-slate-400 mt-1">
-                  Si c’est un achat société, renseigne le nom + TVA (optionnel) pour la facture.
+                  
                 </p>
               </div>
 
@@ -394,13 +394,13 @@ export default function PricingPage({
                     onChange={(e) =>
                       setBilling((b) => ({ ...b, companyName: e.target.value }))
                     }
-                    placeholder="Nom de la société (obligatoire si achat pro)"
+                    placeholder="Nom de la société"
                     className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     value={billing.vat || ""}
                     onChange={(e) => setBilling((b) => ({ ...b, vat: e.target.value }))}
-                    placeholder="N° TVA (optionnel)"
+                    placeholder="N° TVA"
                     className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </>
@@ -411,7 +411,7 @@ export default function PricingPage({
                 onChange={(e) =>
                   setBilling((b) => ({ ...b, addressLine1: e.target.value }))
                 }
-                placeholder="Adresse (rue, numéro) (optionnel)"
+                placeholder="Adresse (rue, numéro)"
                 className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
@@ -421,20 +421,20 @@ export default function PricingPage({
                   onChange={(e) =>
                     setBilling((b) => ({ ...b, postalCode: e.target.value }))
                   }
-                  placeholder="Code postal (optionnel)"
+                  placeholder="Code postal"
                   className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   value={billing.city || ""}
                   onChange={(e) => setBilling((b) => ({ ...b, city: e.target.value }))}
-                  placeholder="Ville (optionnel)"
+                  placeholder="Ville"
                   className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <input
-                  value={billing.country || "BE"}
+                  value={billing.country}
                   onChange={(e) =>
                     setBilling((b) => ({ ...b, country: e.target.value.toUpperCase() }))
                   }
@@ -443,7 +443,7 @@ export default function PricingPage({
                 />
 
                 <div className="text-[11px] text-slate-400 flex items-center">
-                  Astuce : Stripe peut aussi demander la TVA sur la page de paiement.
+                  
                 </div>
               </div>
 
@@ -467,9 +467,7 @@ export default function PricingPage({
                 </button>
               </div>
 
-              <p className="text-[11px] text-slate-500">
-                On utilise ces infos uniquement pour générer une facture plus complète (nom/société/adresse).
-              </p>
+              
             </div>
           </div>
         </div>
