@@ -218,13 +218,7 @@ export default function Home() {
       subStatus === "trialing" ||
       subStatus === "past_due");
 
-  const statusLabel = !isPro
-    ? "—"
-    : proActive
-    ? "Actif"
-    : subStatus
-    ? subStatus
-    : "—";
+  const statusLabel = !isPro ? "—" : proActive ? "Actif" : subStatus ? subStatus : "—";
 
   const emailsImproved = me?.emails_improved ?? null;
 
@@ -330,16 +324,16 @@ export default function Home() {
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
             <h2 className="text-xl font-semibold mb-4">Comment ça marche</h2>
 
-            <ol className="mx-auto max-w-3xl grid gap-4 md:grid-cols-3 text-sm text-slate-300">
-              <li className="flex gap-3 md:justify-center">
+            <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
+              <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">1.</span>
-                Installe l’extension et redémarre Gmail
+                Installe et redémarre Gmail
               </li>
-              <li className="flex gap-3 md:justify-center">
+              <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">2.</span>
                 Rédige ton e-mail normalement
               </li>
-              <li className="flex gap-3 md:justify-center">
+              <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">3.</span>
                 Clique sur “Améliorer avec MailCoach”
               </li>
@@ -395,9 +389,7 @@ export default function Home() {
               )}
             </ul>
 
-            <p className="text-xs text-slate-500">
-              Connecté en tant que {userEmail}
-            </p>
+            <p className="text-xs text-slate-500">Connecté en tant que {userEmail}</p>
 
             {isPro && (
               <button
@@ -426,15 +418,13 @@ export default function Home() {
 
                 <li className="flex items-center gap-2">
                   <span>
-                    Accès Pro :{" "}
-                    <span className="text-slate-300">{statusLabel}</span>
+                    Accès Pro : <span className="text-slate-300">{statusLabel}</span>
                   </span>
                 </li>
 
                 <li className="flex items-center gap-2">
                   <span>
-                    Limite :{" "}
-                    <span className="text-slate-300">illimitée</span>
+                    Limite : <span className="text-slate-300">illimitée</span>
                   </span>
                 </li>
 
@@ -448,9 +438,7 @@ export default function Home() {
                 ) : null}
               </ul>
 
-              <p className="mt-4 text-xs text-slate-500">
-                Connecté en tant que {userEmail}
-              </p>
+              <p className="mt-4 text-xs text-slate-500">Connecté en tant que {userEmail}</p>
             </div>
           ) : (
             <div className="rounded-2xl border border-blue-500/60 bg-gradient-to-br from-blue-600/20 via-slate-900 to-indigo-600/20 p-6">
@@ -516,10 +504,7 @@ export default function Home() {
             </button>
           </div>
 
-          <button
-            onClick={() => signOut()}
-            className="hover:text-slate-300 transition"
-          >
+          <button onClick={() => signOut()} className="hover:text-slate-300 transition">
             Se déconnecter
           </button>
         </footer>
@@ -530,8 +515,7 @@ export default function Home() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget && !contactLoading)
-              setShowContact(false);
+            if (e.target === e.currentTarget && !contactLoading) setShowContact(false);
           }}
         >
           <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6">
@@ -594,8 +578,7 @@ export default function Home() {
               </div>
 
               <p className="text-[11px] text-slate-500">
-                (Tu peux laisser le sujet vide. On utilise ton email de connexion
-                pour te répondre.)
+                (Tu peux laisser le sujet vide. On utilise ton email de connexion pour te répondre.)
               </p>
             </form>
           </div>
