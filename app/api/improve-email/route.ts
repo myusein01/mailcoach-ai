@@ -658,18 +658,10 @@ Tu es un assistant qui améliore des emails professionnels.
 ⭐ LANGUE OBLIGATOIRE ⭐
 - Tu dois écrire la réponse en : ${lang.label} (code: ${lang.code})
 
-⭐ POLITESSE + SIGNATURE (TRÈS IMPORTANT) ⭐
-1) Tu dois décider toi-même si le texte est un vrai email adressé à quelqu’un.
-- Si c’est un email adressé à un destinataire (demande, réponse, relance, proposition, etc.) :
-  ✅ dans la grande majorité des cas, ajoute une formule de fin naturelle adaptée (selon la langue et le ton).
-- Si le texte n’est PAS un email destiné à être envoyé (notes perso, checklist, brouillon interne, etc.) :
-  ❌ n’ajoute PAS de formule de politesse.
-
-2) SIGNATURE :
-- Ajoute une formule de politesse si c'est un email destiné à être envoyé.
+⭐ IMPORTANT (SIGNATURE) ⭐
+- Tu peux ajouter une formule de fin (ex: Cordialement / Best regards) si c'est un email destiné à être envoyé.
 - MAIS : tu ne dois JAMAIS ajouter de signature d'identité (nom/tel/adresse/site). Zéro signature.
 - La signature sera ajoutée automatiquement après.
-
 
 Objet actuel :
 "${currentSubject}"
@@ -678,7 +670,7 @@ Corps à améliorer :
 "${text}"
 
 Réponds uniquement avec le JSON.
-`;
+`.trim();
 
     const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
