@@ -86,20 +86,30 @@ function normalizeLanguage(input: any): {
 } {
   const raw = String(input ?? "").trim().toLowerCase();
 
-  const allowed = ["fr", "en", "es", "de", "it", "pt"] as const;
+  const allowed = ["fr", "nl", "en", "es", "de", "tr", "it", "pt", "ro", "bg"] as const;
   if ((allowed as readonly string[]).includes(raw)) {
     const label =
       raw === "fr"
         ? "Français"
         : raw === "en"
         ? "English"
+        : raw === "nl"
+        ? "Nederlands"
         : raw === "es"
         ? "Español"
         : raw === "de"
         ? "Deutsch"
+        : raw === "tr"
+        ? "Türkçe"
         : raw === "it"
         ? "Italiano"
-        : "Português";
+        : raw === "pt"
+        ? "Português"
+        : raw === "ro"
+        ? "Română"
+        : raw === "bg"
+        ? "Български":
+        "Français";
     return { code: raw as any, label };
   }
 

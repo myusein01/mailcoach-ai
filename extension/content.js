@@ -24,11 +24,15 @@ const LOGIN_URL = "https://www.mailcoach-ai.com/login";
 // ---------- LANGUES ----------
 const LANGS = [
   { code: "fr", label: "Français" },
+  { code: "nl", label: "Nederlands" },
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
   { code: "de", label: "Deutsch" },
+  { code: "tr", label: "Türkçe" },
   { code: "it", label: "Italiano" },
   { code: "pt", label: "Português" },
+  { code: "ro", label: "Română" },
+  { code: "bg", label: "Български" },
 ];
 
 function langLabel(code) {
