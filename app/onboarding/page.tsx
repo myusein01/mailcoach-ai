@@ -14,6 +14,7 @@ type UserProfile = {
   title: string | null;
   website: string | null;
 
+  // ✅ Signature Luxury
   logo_url: string | null;
   accent_color: string | null;
   logo_height: number | null;
@@ -38,15 +39,6 @@ function normalizeUrl(u: string) {
   if (!s) return "";
   if (s.startsWith("http://") || s.startsWith("https://")) return s;
   return `https://${s}`;
-}
-
-function normalizeHex(input: string) {
-  const raw = (input || "").trim();
-  if (!raw) return "";
-  const v = raw.startsWith("#") ? raw : `#${raw}`;
-  if (/^#[0-9a-fA-F]{6}$/.test(v)) return v;
-  if (/^#[0-9a-fA-F]{3}$/.test(v)) return v;
-  return "";
 }
 
 function buildLuxurySignatureHtml(p: {
@@ -140,14 +132,14 @@ function buildLuxurySignatureHtml(p: {
 `);
   }
 
-  // ✅ Alignement icône / texte (évite le "décalé")
+  // ✅ Nouveau logo "website" + alignement propre (plus de décalage)
   if (websiteUrl && websiteLabel) {
     rows.push(`
 <table cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-top:2px;">
   <tr>
     <td style="padding-right:6px; vertical-align:middle; line-height:0;">
       <img
-        src="https://upload.wikimedia.org/wikipedia/commons/8/80/Globe_icon_gray.svg"
+        src="https://api.iconify.design/mdi/web.svg?color=%239CA3AF"
         width="12"
         height="12"
         alt="Website"
@@ -157,7 +149,7 @@ function buildLuxurySignatureHtml(p: {
     <td style="font-size:12.5px; vertical-align:middle; line-height:1.2; padding:0;">
       <a
         href="${escapeHtml(websiteUrl)}"
-        style="color:#2B2B2B; text-decoration:none;"
+        style="color:#2B2B2B; text-decoration:none; display:inline-block; vertical-align:middle; line-height:1.2;"
       >
         ${escapeHtml(websiteLabel)}
       </a>
@@ -215,7 +207,6 @@ export default function OnboardingPage() {
 
   const [logoUrl, setLogoUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#C8A24A");
-  const [accentInput, setAccentInput] = useState("#C8A24A"); // ✅ input code couleur
   const [logoHeight, setLogoHeight] = useState(70);
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -241,10 +232,8 @@ export default function OnboardingPage() {
         setTitle(p?.title ?? "");
         setWebsite(p?.website ?? "");
 
-        const acc = p?.accent_color ?? "#C8A24A";
         setLogoUrl(p?.logo_url ?? "");
-        setAccentColor(acc);
-        setAccentInput(acc); // ✅ sync input
+        setAccentColor(p?.accent_color ?? "#C8A24A");
         setLogoHeight(typeof p?.logo_height === "number" ? p.logo_height : 70);
 
         setLoading(false);
@@ -412,43 +401,12 @@ export default function OnboardingPage() {
                 <button
                   key={c.value}
                   type="button"
-                  onClick={() => {
-                    setAccentColor(c.value);
-                    setAccentInput(c.value);
-                  }}
+                  onClick={() => setAccentColor(c.value)}
                   className="rounded-xl border border-slate-700 px-3 py-1 text-xs"
                 >
                   {c.name}
                 </button>
               ))}
-            </div>
-
-            {/* ✅ Code couleur custom */}
-            <div className="mt-3">
-              <div className="text-xs text-slate-300 mb-2">
-                Code couleur (hex)
-              </div>
-              <div className="flex gap-2 items-center">
-                <input
-                  value={accentInput}
-                  onChange={(e) => {
-                    const v = e.target.value;
-                    setAccentInput(v);
-                    const hex = normalizeHex(v);
-                    if (hex) setAccentColor(hex);
-                  }}
-                  placeholder="#C8A24A"
-                  className="flex-1 rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm"
-                />
-                <div
-                  className="h-9 w-12 rounded-xl border border-slate-700"
-                  style={{ background: accentColor }}
-                  title={accentColor}
-                />
-              </div>
-              <div className="mt-2 text-xs text-slate-400">
-                Exemple: <span className="font-mono">#2563EB</span>
-              </div>
             </div>
 
             <div className="mt-4">
