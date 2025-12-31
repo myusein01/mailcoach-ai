@@ -81,34 +81,48 @@ function pickBestSubscription(subs: Stripe.Subscription[]) {
 
 // ✅ normalisation langue venant de l’extension
 function normalizeLanguage(input: any): {
-  code: "fr" | "en" | "es" | "de" | "it" | "pt";
+  code: "fr" | "en" | "nl" | "es" | "de" | "tr" | "it" | "pt" | "ro" | "bg";
   label: string;
 } {
   const raw = String(input ?? "").trim().toLowerCase();
 
-  const allowed = ["fr", "en", "es", "de", "it", "pt"] as const;
+  const allowed = ["fr", "en", "nl", "es", "de", "tr", "it", "pt", "ro", "bg"] as const;
   if ((allowed as readonly string[]).includes(raw)) {
     const label =
       raw === "fr"
         ? "Français"
         : raw === "en"
         ? "English"
+        : raw === "nl"
+        ? "Nederlands"
         : raw === "es"
         ? "Español"
         : raw === "de"
         ? "Deutsch"
+        : raw === "tr"
+        ? "Türkçe"
         : raw === "it"
         ? "Italiano"
-        : "Português";
+        : raw === "pt"
+        ? "Português"
+        : raw === "ro"
+        ? "Română"
+        : raw === "bg"
+        ? "Български":
+        "Français";
     return { code: raw as any, label };
   }
 
   if (raw.startsWith("fr")) return { code: "fr", label: "Français" };
   if (raw.startsWith("en")) return { code: "en", label: "English" };
+  if (raw.startsWith("nl")) return { code: "nl", label: "Nederlands" };
   if (raw.startsWith("es")) return { code: "es", label: "Español" };
   if (raw.startsWith("de")) return { code: "de", label: "Deutsch" };
+  if (raw.startsWith("tr")) return { code: "tr", label: "Türkçe" };
   if (raw.startsWith("it")) return { code: "it", label: "Italiano" };
   if (raw.startsWith("pt")) return { code: "pt", label: "Português" };
+  if (raw.startsWith("ro")) return { code: "ro", label: "Română" };
+  if (raw.startsWith("bg")) return { code: "bg", label: "Български" };
 
   return { code: "fr", label: "Français" };
 }
@@ -337,12 +351,83 @@ function shouldAppendSignature(body: string, langCode: string) {
       "bonne journée",
       "bonne journee",
     ],
-    en: ["best regards", "kind regards", "regards", "sincerely", "thank you,"],
-    es: ["saludos", "atentamente", "gracias,"],
-    de: ["mit freundlichen grüßen", "mit freundlichen gruessen", "danke,"],
-    it: ["cordiali saluti", "distinti saluti", "grazie,"],
-    pt: ["cumprimentos", "atenciosamente", "obrigado,"],
+
+    nl: [
+      "met vriendelijke groet",
+      "vriendelijke groeten",
+      "hartelijke groeten",
+      "dank u,",
+      "dank je,",
+    ],
+
+    en: [
+      "best regards",
+      "kind regards",
+      "regards",
+      "sincerely",
+      "thank you,",
+      "thank you.",
+    ],
+
+    es: [
+      "saludos",
+      "saludos cordiales",
+      "atentamente",
+      "un saludo",
+      "gracias,",
+      "gracias.",
+      "cordialmente",
+      "cordialmente,"
+    ],
+
+    de: [
+      "mit freundlichen grüßen",
+      "mit freundlichen gruessen",
+      "freundliche grüße",
+      "freundliche grüsse",
+      "danke,",
+      "danke.",
+    ],
+
+    tr: [
+      "saygılarımla",
+      "iyi çalışmalar",
+      "teşekkür ederim",
+      "teşekkürler,",
+    ],
+
+    it: [
+      "cordiali saluti",
+      "distinti saluti",
+      "un cordiale saluto",
+      "grazie,",
+      "grazie.",
+    ],
+
+    pt: [
+      "cumprimentos",
+      "atenciosamente",
+      "com os melhores cumprimentos",
+      "obrigado,",
+      "obrigada,",
+    ],
+
+    ro: [
+      "cu stimă",
+      "cu respect",
+      "toate cele bune",
+      "mulțumesc,",
+      "multumesc,",
+    ],
+
+    bg: [
+      "с уважение",
+      "поздрави",
+      "най-добри пожелания",
+      "благодаря,",
+    ],
   };
+
 
   const pats = patternsByLang[langCode] ?? patternsByLang["fr"];
   return pats.some((p) => tail.includes(p));
@@ -573,10 +658,18 @@ Tu es un assistant qui améliore des emails professionnels.
 ⭐ LANGUE OBLIGATOIRE ⭐
 - Tu dois écrire la réponse en : ${lang.label} (code: ${lang.code})
 
-⭐ IMPORTANT (SIGNATURE) ⭐
-- Tu peux ajouter une formule de fin (ex: Cordialement / Best regards) si c'est un email destiné à être envoyé.
+⭐ POLITESSE + SIGNATURE (TRÈS IMPORTANT) ⭐
+1) Tu dois décider toi-même si le texte est un vrai email adressé à quelqu’un.
+- Si c’est un email adressé à un destinataire (demande, réponse, relance, proposition, etc.) :
+  ✅ dans la grande majorité des cas, ajoute une formule de fin naturelle adaptée (selon la langue et le ton).
+- Si le texte n’est PAS un email destiné à être envoyé (notes perso, checklist, brouillon interne, etc.) :
+  ❌ n’ajoute PAS de formule de politesse.
+
+2) SIGNATURE :
+- Ajoute une formule de politesse si c'est un email destiné à être envoyé.
 - MAIS : tu ne dois JAMAIS ajouter de signature d'identité (nom/tel/adresse/site). Zéro signature.
 - La signature sera ajoutée automatiquement après.
+
 
 Objet actuel :
 "${currentSubject}"
@@ -585,7 +678,7 @@ Corps à améliorer :
 "${text}"
 
 Réponds uniquement avec le JSON.
-`.trim();
+`;
 
     const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
