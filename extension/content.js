@@ -57,7 +57,9 @@ function setStoredLanguage(lang) {
 // ---------- IDENTITÉ GMAIL ----------
 function extractEmailFromText(text) {
   if (!text) return null;
-  const match = String(text).match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const match = String(text).match(
+    /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+  );
   return match ? match[0].toLowerCase() : null;
 }
 
@@ -190,7 +192,9 @@ function createLanguageChip(initialLangCode) {
 function updateLanguageChip(chip, langCode) {
   if (!chip) return;
   chip.innerText = `🌐 ${langChipText(langCode)}`;
-  chip.title = `Langue actuelle : ${langLabel(langCode)} (${langChipText(langCode)})`;
+  chip.title = `Langue actuelle : ${langLabel(langCode)} (${langChipText(
+    langCode
+  )})`;
 }
 
 // ---------- UI : Modal langue ----------
@@ -266,6 +270,159 @@ function createLanguageModal(onPick) {
   return backdrop;
 }
 
+// ---------- UI : Modal confirmation (OK/Annuler + lien profil) ----------
+function createConfirmModal() {
+  const existing = document.getElementById("mailcoach-confirm-backdrop");
+  if (existing) existing.remove();
+
+  const backdrop = document.createElement("div");
+  backdrop.id = "mailcoach-confirm-backdrop";
+  backdrop.style.position = "fixed";
+  backdrop.style.inset = "0";
+  backdrop.style.zIndex = "10001";
+  backdrop.style.background = "rgba(0,0,0,0.55)";
+  backdrop.style.display = "none";
+  backdrop.style.alignItems = "center";
+  backdrop.style.justifyContent = "center";
+
+  const modal = document.createElement("div");
+  Object.assign(modal.style, {
+    background: "#020617",
+    borderRadius: "14px",
+    padding: "16px",
+    width: "360px",
+    border: "1px solid #334155",
+    color: "#e5e7eb",
+    boxShadow: "0 10px 30px rgba(15,23,42,0.6)",
+  });
+
+  const title = document.createElement("div");
+  title.style.fontWeight = "800";
+  title.style.marginBottom = "10px";
+  title.innerText = "Améliorer votre mail ?";
+
+  const content = document.createElement("div");
+  content.style.fontSize = "12px";
+  content.style.color = "#cbd5e1";
+  content.style.marginBottom = "12px";
+  content.innerText = "Langue : —";
+
+  const actions = document.createElement("div");
+  Object.assign(actions.style, {
+    display: "flex",
+    gap: "10px",
+    justifyContent: "flex-end",
+    marginTop: "12px",
+  });
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.innerText = "Annuler";
+  Object.assign(cancelBtn.style, {
+    padding: "10px 14px",
+    borderRadius: "12px",
+    border: "1px solid #334155",
+    background: "#0f172a",
+    color: "#e5e7eb",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: "700",
+  });
+  cancelBtn.onmouseenter = () => (cancelBtn.style.background = "#111c33");
+  cancelBtn.onmouseleave = () => (cancelBtn.style.background = "#0f172a");
+
+  const okBtn = document.createElement("button");
+  okBtn.innerText = "OK";
+  Object.assign(okBtn.style, {
+    padding: "10px 14px",
+    borderRadius: "12px",
+    border: "none",
+    background: "#3b82f6",
+    color: "white",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: "800",
+  });
+  okBtn.onmouseenter = () => (okBtn.style.background = "#2563eb");
+  okBtn.onmouseleave = () => (okBtn.style.background = "#3b82f6");
+
+  const footer = document.createElement("div");
+  Object.assign(footer.style, {
+    marginTop: "12px",
+    paddingTop: "12px",
+    borderTop: "1px solid #1f2937",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "10px",
+  });
+
+  const profileLink = document.createElement("button");
+  profileLink.type = "button";
+  profileLink.innerText = "Voir mon profil MailCoach";
+  Object.assign(profileLink.style, {
+    background: "transparent",
+    border: "none",
+    color: "#93c5fd",
+    textDecoration: "underline",
+    cursor: "pointer",
+    padding: "0",
+    fontSize: "12px",
+    fontWeight: "700",
+  });
+  profileLink.onclick = () => window.open(LOGIN_URL, "_blank");
+
+  const smallHint = document.createElement("div");
+  smallHint.innerText = "Connexion Google sur le site";
+  Object.assign(smallHint.style, {
+    fontSize: "11px",
+    color: "#94a3b8",
+    textAlign: "right",
+  });
+
+  actions.appendChild(cancelBtn);
+  actions.appendChild(okBtn);
+
+  footer.appendChild(profileLink);
+  footer.appendChild(smallHint);
+
+  modal.appendChild(title);
+  modal.appendChild(content);
+  modal.appendChild(actions);
+  modal.appendChild(footer);
+
+  backdrop.appendChild(modal);
+
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) {
+      backdrop.style.display = "none";
+      if (typeof backdrop._resolve === "function") backdrop._resolve(false);
+    }
+  };
+
+  document.body.appendChild(backdrop);
+
+  function open({ languageText }) {
+    return new Promise((resolve) => {
+      content.innerText = `Langue : ${languageText}`;
+      backdrop._resolve = resolve;
+
+      cancelBtn.onclick = () => {
+        backdrop.style.display = "none";
+        resolve(false);
+      };
+
+      okBtn.onclick = () => {
+        backdrop.style.display = "none";
+        resolve(true);
+      };
+
+      backdrop.style.display = "flex";
+    });
+  }
+
+  return { open };
+}
+
 // ---------- ACTION PRINCIPALE ----------
 async function improveEmail(mainBtn) {
   const box = findComposeBox();
@@ -325,14 +482,17 @@ async function improveEmail(mainBtn) {
     const improvedSubject = data.subject || originalSubject;
 
     // ✅ NOUVEAU : HTML direct (inclut signature Luxury si applicable)
-    const improvedBodyHtml = typeof data.bodyHtml === "string" ? data.bodyHtml : null;
+    const improvedBodyHtml =
+      typeof data.bodyHtml === "string" ? data.bodyHtml : null;
 
     // fallback texte (ancien comportement)
     const improvedBodyText = data.body || originalBody;
 
-    const ok = confirm(
-      `Améliorer votre mail ?\n\nLangue: ${langLabel(language)} (${language.toUpperCase()})`
-    );
+    // ✅ MODIF: confirm() -> modal custom avec lien profil
+    const confirmModal = createConfirmModal();
+    const ok = await confirmModal.open({
+      languageText: `${langLabel(language)} (${language.toUpperCase()})`,
+    });
     if (!ok) return;
 
     // objet
