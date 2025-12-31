@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-// ⚠️ Nécessite: npm i @aws-sdk/client-s3
+// ✅ Nécessite: npm i @aws-sdk/client-s3
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 function json(body: any, status = 200) {
@@ -21,16 +21,16 @@ function getExtFromMime(mime: string) {
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email?.toLowerCase();
-
   if (!email) return json({ error: "unauthorized" }, 401);
 
-  // ==== CONFIG STORAGE ====
-  // Compatible Cloudflare R2 / S3
-  // - S3_ENDPOINT: ex R2 => https://<ACCOUNT_ID>.r2.cloudflarestorage.com
-  // - S3_REGION: "auto" (R2) ou ex "eu-west-1"
-  // - S3_ACCESS_KEY_ID / S3_SECRET_ACCESS_KEY
-  // - S3_BUCKET
-  // - S3_PUBLIC_BASE_URL: ex https://cdn.tondomaine.com (ou URL publique du bucket)
+  // ==== CONFIG STORAGE (S3 / Cloudflare R2) ====
+  // Tu dois mettre ces variables dans .env.local et sur Vercel:
+  // S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com   (si R2)
+  // S3_REGION=auto                                             (si R2)
+  // S3_ACCESS_KEY_ID=....
+  // S3_SECRET_ACCESS_KEY=....
+  // S3_BUCKET=mailcoach-ai (nom de ton bucket)
+  // S3_PUBLIC_BASE_URL=https://<ton-cdn-ou-public-bucket>       (URL publique de lecture)
   const endpoint = process.env.S3_ENDPOINT;
   const region = process.env.S3_REGION || "auto";
   const accessKeyId = process.env.S3_ACCESS_KEY_ID;
@@ -43,6 +43,13 @@ export async function POST(req: Request) {
       {
         error:
           "Storage non configuré. Ajoute S3_ENDPOINT, S3_ACCESS_KEY_ID, S3_SECRET_ACCESS_KEY, S3_BUCKET, S3_PUBLIC_BASE_URL.",
+        missing: {
+          S3_ENDPOINT: !endpoint,
+          S3_ACCESS_KEY_ID: !accessKeyId,
+          S3_SECRET_ACCESS_KEY: !secretAccessKey,
+          S3_BUCKET: !bucket,
+          S3_PUBLIC_BASE_URL: !publicBaseUrl,
+        },
       },
       500
     );
@@ -72,7 +79,7 @@ export async function POST(req: Request) {
     region,
     endpoint,
     credentials: { accessKeyId, secretAccessKey },
-    forcePathStyle: true,
+    forcePathStyle: true, // ✅ important pour R2
   });
 
   await s3.send(
