@@ -18,7 +18,7 @@ type UserProfile = {
   logo_url: string | null;
   accent_color: string | null;
   logo_height: number | null;
-  signature_enabled: number | null;
+  signature_enabled: number | null; // 0/1
 };
 
 function clean(v: any) {
@@ -52,7 +52,10 @@ function buildLuxurySignatureHtml(p: {
   logo_url: string;
   accent_color: string;
   logo_height: number;
+  signature_enabled: boolean;
 }) {
+  if (!p.signature_enabled) return "";
+
   const first = clean(p.first_name);
   const last = clean(p.last_name);
   const title = clean(p.title);
@@ -126,14 +129,8 @@ function buildLuxurySignatureHtml(p: {
   if (websiteUrl && websiteLabel) {
     infoParts.push(
       `<div style="font-size:12.5px; line-height:1.5; color:#2B2B2B;">
-        <img
-          src="https://api.iconify.design/mdi/web.svg?color=%237A7A7A"
-          width="12"
-          height="12"
-          alt="Website"
-          style="display:inline-block; vertical-align:middle; border:0; outline:none; text-decoration:none;"
-        />
-        <span style="margin-left:6px; display:inline-block; vertical-align:middle;">
+        <span style="color:#7A7A7A;">🌐</span>
+        <span style="margin-left:6px;">
           <a href="${escapeHtml(
             websiteUrl
           )}" style="color:#2B2B2B; text-decoration:none;">${escapeHtml(
@@ -163,17 +160,6 @@ function buildLuxurySignatureHtml(p: {
   `.trim();
 }
 
-const COLOR_PRESETS = [
-  { name: "Or", value: "#C8A24A" },
-  { name: "Bleu", value: "#2563EB" },
-  { name: "Noir", value: "#111827" },
-  { name: "Vert", value: "#16A34A" },
-  { name: "Violet", value: "#7C3AED" },
-  { name: "Rouge", value: "#DC2626" },
-  { name: "Rose", value: "#DB2777" },
-  { name: "Gris", value: "#6B7280" },
-];
-
 export default function OnboardingPage() {
   const router = useRouter();
 
@@ -190,14 +176,11 @@ export default function OnboardingPage() {
   const [title, setTitle] = useState("");
   const [website, setWebsite] = useState("");
 
-  // ✅ signature (toujours activée)
+  // ✅ nouveaux champs signature
   const [logoUrl, setLogoUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#C8A24A");
   const [logoHeight, setLogoHeight] = useState(70);
-
-  // upload logo
-  const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [signatureEnabled, setSignatureEnabled] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -236,6 +219,7 @@ export default function OnboardingPage() {
             ? p.logo_height
             : 70
         );
+        setSignatureEnabled((p?.signature_enabled ?? 1) !== 0);
 
         setLoading(false);
       } catch (e) {
@@ -263,6 +247,7 @@ export default function OnboardingPage() {
       logo_url: logoUrl,
       accent_color: accentColor,
       logo_height: logoHeight,
+      signature_enabled: signatureEnabled,
     });
   }, [
     firstName,
@@ -275,51 +260,8 @@ export default function OnboardingPage() {
     logoUrl,
     accentColor,
     logoHeight,
+    signatureEnabled,
   ]);
-
-  async function onPickLogo(file: File | null) {
-    if (!file) return;
-    setUploadError(null);
-
-    // petites validations client
-    if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) {
-      setUploadError("Format non supporté. Utilise PNG, JPG ou WEBP.");
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setUploadError("Fichier trop lourd (max 2MB).");
-      return;
-    }
-
-    setUploadingLogo(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-
-      const res = await fetch("/api/upload-logo", {
-        method: "POST",
-        body: fd,
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setUploadError(data?.error || "Upload impossible.");
-        return;
-      }
-
-      if (typeof data?.url === "string" && data.url) {
-        setLogoUrl(data.url);
-      } else {
-        setUploadError("Upload OK mais URL manquante.");
-      }
-    } catch (e) {
-      console.error(e);
-      setUploadError("Erreur réseau pendant l’upload.");
-    } finally {
-      setUploadingLogo(false);
-    }
-  }
 
   async function save() {
     setSaving(true);
@@ -338,11 +280,11 @@ export default function OnboardingPage() {
           title,
           website,
 
-          // ✅ signature (toujours activée)
+          // ✅ signature
           logo_url: logoUrl,
           accent_color: accentColor,
           logo_height: logoHeight,
-          signature_enabled: 1,
+          signature_enabled: signatureEnabled ? 1 : 0,
         }),
       });
 
@@ -376,7 +318,7 @@ export default function OnboardingPage() {
       <div className="mx-auto max-w-4xl px-4 py-14">
         <h1 className="text-4xl font-bold tracking-tight mb-3">Ta signature</h1>
         <p className="text-slate-300 mb-10">
-          Ces infos seront ajoutées automatiquement en fin de mail (signature).
+          Ces infos peuvent être ajoutées automatiquement en fin de mail (signature).
           <br />
           Remplis uniquement ce que tu veux afficher.
         </p>
@@ -436,95 +378,52 @@ export default function OnboardingPage() {
             />
 
             <div className="mt-8 border-t border-slate-800 pt-6">
-              <div className="text-sm font-semibold">Template “Luxury”</div>
-              <div className="text-xs text-slate-400 mt-1">
-                Logo + barre verticale + infos (style carte).
-              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold">Template “Luxury”</div>
+                  <div className="text-xs text-slate-400 mt-1">
+                    Logo + barre verticale + infos (style carte).
+                  </div>
+                </div>
 
-              {/* ✅ Upload logo */}
-              <div className="mt-4">
-                <div className="text-xs text-slate-300 mb-2">Logo (fichier)</div>
-
-                <label className="flex items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 cursor-pointer hover:bg-slate-800/80 transition">
-                  <span className="truncate">
-                    {uploadingLogo
-                      ? "Upload en cours…"
-                      : logoUrl
-                      ? "Logo uploadé ✅ (clique pour remplacer)"
-                      : "Choisir un fichier (PNG/JPG/WEBP)"}
-                  </span>
+                <label className="flex items-center gap-2 text-sm text-slate-200">
                   <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/jpg,image/webp"
-                    className="hidden"
-                    disabled={uploadingLogo}
-                    onChange={(e) =>
-                      onPickLogo(e.target.files?.[0] ?? null).finally(() => {
-                        // reset pour pouvoir re-uploader le même fichier
-                        if (e.currentTarget) e.currentTarget.value = "";
-                      })
-                    }
+                    type="checkbox"
+                    checked={signatureEnabled}
+                    onChange={(e) => setSignatureEnabled(e.target.checked)}
+                    className="h-4 w-4"
                   />
+                  Activer
                 </label>
-
-                {uploadError ? (
-                  <div className="mt-2 text-xs text-red-300">{uploadError}</div>
-                ) : null}
-
-                <p className="mt-2 text-[11px] text-slate-500">
-                  Max 2MB. Format PNG/JPG/WEBP.
-                </p>
               </div>
 
-              {/* ✅ Choix couleur preset */}
-              <div className="mt-5">
-                <div className="text-xs text-slate-300 mb-2">
-                  Couleur de la barre
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {COLOR_PRESETS.map((c) => {
-                    const active =
-                      accentColor.toLowerCase() === c.value.toLowerCase();
-                    return (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => setAccentColor(c.value)}
-                        className={
-                          active
-                            ? "flex items-center gap-2 rounded-xl border border-slate-500 bg-slate-800 px-3 py-2 text-xs text-slate-100"
-                            : "flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/40 px-3 py-2 text-xs text-slate-200 hover:bg-slate-900/70 transition"
-                        }
-                        title={c.value}
-                      >
-                        <span
-                          className="inline-block h-3 w-3 rounded-full"
-                          style={{ background: c.value }}
-                        />
-                        {c.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+              <input
+                value={logoUrl}
+                onChange={(e) => setLogoUrl(e.target.value)}
+                placeholder="Logo URL (https://...)"
+                className="mt-3 w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
-              {/* ✅ Taille clairement indiquée */}
-              <div className="mt-5">
-                <div className="text-xs text-slate-300 mb-2">
-                  Taille du logo (hauteur en pixels)
-                </div>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <input
+                  value={accentColor}
+                  onChange={(e) => setAccentColor(e.target.value)}
+                  placeholder="#C8A24A"
+                  className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+
                 <input
                   type="number"
                   value={logoHeight}
-                  min={30}
-                  max={140}
                   onChange={(e) => setLogoHeight(Number(e.target.value || 70))}
+                  placeholder="Hauteur logo (px)"
                   className="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="mt-2 text-[11px] text-slate-500">
-                  Recommandé : 60 à 90px.
-                </p>
               </div>
+
+              <p className="mt-2 text-[11px] text-slate-500">
+                Astuce : le logo doit être une URL publique HTTPS (PNG/JPG).
+              </p>
             </div>
 
             {error ? (
@@ -534,7 +433,7 @@ export default function OnboardingPage() {
             <div className="mt-6 flex gap-3">
               <button
                 onClick={save}
-                disabled={saving || uploadingLogo}
+                disabled={saving}
                 className="inline-flex flex-1 items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 disabled:opacity-60 transition"
               >
                 {saving ? "Enregistrement…" : "Enregistrer"}
@@ -563,15 +462,14 @@ export default function OnboardingPage() {
                 <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
               ) : (
                 <div className="text-sm text-slate-600">
-                  Remplis au moins un champ (nom / tel / site / adresse / logo)
-                  pour voir l’aperçu.
+                  Remplis au moins un champ (nom / tel / site / adresse / logo) pour voir
+                  l’aperçu.
                 </div>
               )}
             </div>
 
             <div className="mt-5 text-xs text-slate-400">
-              L’aperçu ci-dessus correspond à ce qui sera inséré en fin de mail
-              (Gmail).
+              L’aperçu ci-dessus correspond à ce qui sera inséré en fin de mail (Gmail).
             </div>
           </div>
         </div>
