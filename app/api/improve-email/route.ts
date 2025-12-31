@@ -86,7 +86,19 @@ function normalizeLanguage(input: any): {
 } {
   const raw = String(input ?? "").trim().toLowerCase();
 
-  const allowed = ["fr", "en", "nl", "es", "de", "tr", "it", "pt", "ro", "bg"] as const;
+  const allowed = [
+    "fr",
+    "en",
+    "nl",
+    "es",
+    "de",
+    "tr",
+    "it",
+    "pt",
+    "ro",
+    "bg",
+  ] as const;
+
   if ((allowed as readonly string[]).includes(raw)) {
     const label =
       raw === "fr"
@@ -108,8 +120,8 @@ function normalizeLanguage(input: any): {
         : raw === "ro"
         ? "Română"
         : raw === "bg"
-        ? "Български":
-        "Français";
+        ? "Български"
+        : "Français";
     return { code: raw as any, label };
   }
 
@@ -335,104 +347,6 @@ function normalizeUrl(u: string) {
   return `https://${s}`;
 }
 
-// Détection simple : on n’ajoute la signature HTML que si on repère une formule de fin.
-function shouldAppendSignature(body: string, langCode: string) {
-  const tail = body.slice(Math.max(0, body.length - 700)).toLowerCase();
-
-  const patternsByLang: Record<string, string[]> = {
-    fr: [
-      "cordialement",
-      "bien à vous",
-      "bien a vous",
-      "sincèrement",
-      "sincerement",
-      "merci,",
-      "merci.",
-      "bonne journée",
-      "bonne journee",
-    ],
-
-    nl: [
-      "met vriendelijke groet",
-      "vriendelijke groeten",
-      "hartelijke groeten",
-      "dank u,",
-      "dank je,",
-    ],
-
-    en: [
-      "best regards",
-      "kind regards",
-      "regards",
-      "sincerely",
-      "thank you,",
-      "thank you.",
-    ],
-
-    es: [
-      "saludos",
-      "saludos cordiales",
-      "atentamente",
-      "un saludo",
-      "gracias,",
-      "gracias.",
-      "cordialmente",
-      "cordialmente,"
-    ],
-
-    de: [
-      "mit freundlichen grüßen",
-      "mit freundlichen gruessen",
-      "freundliche grüße",
-      "freundliche grüsse",
-      "danke,",
-      "danke.",
-    ],
-
-    tr: [
-      "saygılarımla",
-      "iyi çalışmalar",
-      "teşekkür ederim",
-      "teşekkürler,",
-    ],
-
-    it: [
-      "cordiali saluti",
-      "distinti saluti",
-      "un cordiale saluto",
-      "grazie,",
-      "grazie.",
-    ],
-
-    pt: [
-      "cumprimentos",
-      "atenciosamente",
-      "com os melhores cumprimentos",
-      "obrigado,",
-      "obrigada,",
-    ],
-
-    ro: [
-      "cu stimă",
-      "cu respect",
-      "toate cele bune",
-      "mulțumesc,",
-      "multumesc,",
-    ],
-
-    bg: [
-      "с уважение",
-      "поздрави",
-      "най-добри пожелания",
-      "благодаря,",
-    ],
-  };
-
-
-  const pats = patternsByLang[langCode] ?? patternsByLang["fr"];
-  return pats.some((p) => tail.includes(p));
-}
-
 function buildLuxurySignatureHtml(profile: DbUserProfile | null) {
   if (!profile) return null;
   if ((profile.signature_enabled ?? 1) === 0) return null;
@@ -499,7 +413,7 @@ function buildLuxurySignatureHtml(profile: DbUserProfile | null) {
     infoParts.push(`<div style="height:10px; line-height:10px;">&nbsp;</div>`);
   }
 
-  // ✅ MODIF: téléphone aligné (icône + texte sur la même ligne)
+  // téléphone aligné
   if (phone) {
     infoParts.push(
       `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin:0;">
@@ -515,7 +429,7 @@ function buildLuxurySignatureHtml(profile: DbUserProfile | null) {
     );
   }
 
-  // ✅ MODIF: website = icône "web" + alignement propre (plus de décalage)
+  // website aligné (icône web)
   if (websiteUrl && websiteLabel) {
     infoParts.push(
       `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin-top:2px;">
@@ -641,7 +555,7 @@ export async function POST(req: NextRequest) {
     const currentSubject = typeof subject === "string" ? subject : "";
     const lang = normalizeLanguage(language);
 
-    // ✅ On récupère la signature HTML (Luxury) et on l’ajoute après
+    // ✅ On récupère la signature HTML (Luxury)
     const signatureHtml = await getUserSignatureHtml(email);
 
     const prompt = `
@@ -691,8 +605,8 @@ Réponds uniquement avec le JSON.
     const improvedSubject = (parsed.subject || currentSubject || "").trim();
     const improvedBodyText = (parsed.body || text).trim();
 
-    const appendOk =
-      !!signatureHtml && shouldAppendSignature(improvedBodyText, lang.code);
+    // ✅ CHANGEMENT: on ajoute la signature à CHAQUE FOIS si elle existe
+    const appendOk = !!signatureHtml;
 
     const bodyHtml = appendOk
       ? `${textToHtmlWithBr(improvedBodyText)}<br><br>${signatureHtml}`
