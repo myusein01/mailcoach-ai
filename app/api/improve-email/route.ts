@@ -414,28 +414,45 @@ function buildLuxurySignatureHtml(profile: DbUserProfile | null) {
     infoParts.push(`<div style="height:10px; line-height:10px;">&nbsp;</div>`);
   }
 
+  // ✅ MODIF: téléphone aligné (icône + texte sur la même ligne)
   if (phone) {
     infoParts.push(
-      `<div style="font-size:12.5px; line-height:1.5; color:#2B2B2B;">
-        <span style="color:#7A7A7A;">☎</span><span style="margin-left:6px;">${escapeHtml(
-          phone
-        )}</span>
-      </div>`
+      `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin:0;">
+        <tr>
+          <td style="padding-right:6px; vertical-align:middle; line-height:0;">
+            <span style="font-size:12px; color:#7A7A7A; display:inline-block; vertical-align:middle;">☎</span>
+          </td>
+          <td style="font-size:12.5px; line-height:1.2; color:#2B2B2B; vertical-align:middle;">
+            ${escapeHtml(phone)}
+          </td>
+        </tr>
+      </table>`
     );
   }
 
+  // ✅ MODIF: website = icône "web" + alignement propre (plus de décalage)
   if (websiteUrl && websiteLabel) {
     infoParts.push(
-      `<div style="font-size:12.5px; line-height:1.5; color:#2B2B2B;">
-        <span style="color:#7A7A7A;">🌐</span>
-        <span style="margin-left:6px;">
-          <a href="${escapeHtml(
-            websiteUrl
-          )}" style="color:#2B2B2B; text-decoration:none;">${escapeHtml(
-            websiteLabel
-          )}</a>
-        </span>
-      </div>`
+      `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin-top:2px;">
+        <tr>
+          <td style="padding-right:6px; vertical-align:middle; line-height:0;">
+            <img
+              src="https://api.iconify.design/mdi/web.svg?color=%237A7A7A"
+              width="12"
+              height="12"
+              alt="Website"
+              style="display:block; border:0; outline:none; text-decoration:none;"
+            />
+          </td>
+          <td style="font-size:12.5px; line-height:1.2; color:#2B2B2B; vertical-align:middle;">
+            <a href="${escapeHtml(
+              websiteUrl
+            )}" style="color:#2B2B2B; text-decoration:none; display:inline-block; vertical-align:middle; line-height:1.2;">${escapeHtml(
+        websiteLabel
+      )}</a>
+          </td>
+        </tr>
+      </table>`
     );
   }
 
