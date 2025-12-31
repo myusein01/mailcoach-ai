@@ -1,11 +1,12 @@
-// app/api/user-profile/route.ts
-import { NextResponse } from "next/server";
+// app/api/signature/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { dbGet, dbExec } from "@/db/helpers";
+import { dbExec, dbGet } from "@/db/helpers";
 
-type UserProfileRow = {
+type DbUserProfile = {
   email: string;
+
   first_name: string | null;
   last_name: string | null;
   phone: string | null;
@@ -14,13 +15,10 @@ type UserProfileRow = {
   title: string | null;
   website: string | null;
 
-  // ✅ Signature "Luxury"
   logo_url: string | null;
   accent_color: string | null;
   logo_height: number | null;
-  signature_enabled: number | null; // 0/1
-
-  updated_at: number;
+  signature_enabled: number | null;
 };
 
 async function ensureUserProfilesTable() {
@@ -28,6 +26,7 @@ async function ensureUserProfilesTable() {
     `
     CREATE TABLE IF NOT EXISTS user_profiles (
       email TEXT PRIMARY KEY,
+
       first_name TEXT,
       last_name TEXT,
       phone TEXT,
@@ -36,7 +35,6 @@ async function ensureUserProfilesTable() {
       title TEXT,
       website TEXT,
 
-      -- ✅ signature "Luxury"
       logo_url TEXT,
       accent_color TEXT,
       logo_height INTEGER,
@@ -48,7 +46,6 @@ async function ensureUserProfilesTable() {
     []
   );
 
-  // ✅ migrations safe si table déjà existante
   await dbExec(`ALTER TABLE user_profiles ADD COLUMN logo_url TEXT;`, []).catch(
     () => {}
   );
@@ -66,7 +63,7 @@ async function ensureUserProfilesTable() {
   ).catch(() => {});
 }
 
-function cleanStr(v: any) {
+function clean(v: any) {
   if (typeof v !== "string") return null;
   const s = v.trim();
   return s.length ? s : null;
@@ -89,19 +86,23 @@ export async function GET() {
 
   await ensureUserProfilesTable();
 
-  const profile = await dbGet<UserProfileRow>(
-    `SELECT * FROM user_profiles WHERE lower(email) = ? LIMIT 1`,
+  const profile = await dbGet<DbUserProfile>(
+    `SELECT
+      email,
+      first_name, last_name, phone, address, company, title, website,
+      logo_url, accent_color, logo_height, signature_enabled
+     FROM user_profiles
+     WHERE lower(email) = ? LIMIT 1`,
     [email]
   );
 
   return NextResponse.json({
     email,
     profile: profile ?? null,
-    firstTime: profile ? false : true,
   });
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   const email = session?.user?.email?.toLowerCase();
 
@@ -113,32 +114,30 @@ export async function POST(req: Request) {
 
   const body = await req.json().catch(() => ({}));
 
-  const first_name = cleanStr(body.first_name);
-  const last_name = cleanStr(body.last_name);
-  const phone = cleanStr(body.phone);
-  const address = cleanStr(body.address);
-  const company = cleanStr(body.company);
-  const title = cleanStr(body.title);
-  const website = cleanStr(body.website);
+  const first_name = clean(body.first_name);
+  const last_name = clean(body.last_name);
+  const phone = clean(body.phone);
+  const address = clean(body.address);
+  const company = clean(body.company);
+  const title = clean(body.title);
+  const website = clean(body.website);
 
-  // ✅ Signature "Luxury"
-  const logo_url = cleanStr(body.logo_url);
-  const accent_color = cleanStr(body.accent_color);
+  const logo_url = clean(body.logo_url);
+  const accent_color = clean(body.accent_color);
   const logo_height = cleanInt(body.logo_height, 70);
   const signature_enabled =
     body.signature_enabled === 0 || body.signature_enabled === false ? 0 : 1;
 
+  // upsert simple
   await dbExec(
     `
     INSERT INTO user_profiles (
       email, first_name, last_name, phone, address, company, title, website,
-      logo_url, accent_color, logo_height, signature_enabled,
-      updated_at
+      logo_url, accent_color, logo_height, signature_enabled, updated_at
     )
     VALUES (
       ?, ?, ?, ?, ?, ?, ?, ?,
-      ?, ?, ?, ?,
-      (CAST(strftime('%s','now') AS INTEGER) * 1000)
+      ?, ?, ?, ?, (strftime('%s','now') * 1000)
     )
     ON CONFLICT(email) DO UPDATE SET
       first_name = excluded.first_name,
@@ -148,13 +147,11 @@ export async function POST(req: Request) {
       company = excluded.company,
       title = excluded.title,
       website = excluded.website,
-
       logo_url = excluded.logo_url,
       accent_color = excluded.accent_color,
       logo_height = excluded.logo_height,
       signature_enabled = excluded.signature_enabled,
-
-      updated_at = (CAST(strftime('%s','now') AS INTEGER) * 1000)
+      updated_at = excluded.updated_at
     `,
     [
       email,

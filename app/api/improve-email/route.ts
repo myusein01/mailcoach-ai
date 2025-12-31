@@ -239,7 +239,7 @@ async function stripeSyncIfNeeded(email: string) {
 }
 
 // --------------------
-// ✅ PROFIL / SIGNATURE
+// ✅ PROFIL / SIGNATURE (HTML Luxury)
 // --------------------
 
 type DbUserProfile = {
@@ -251,6 +251,11 @@ type DbUserProfile = {
   company: string | null;
   title: string | null;
   website: string | null;
+
+  logo_url: string | null;
+  accent_color: string | null;
+  logo_height: number | null;
+  signature_enabled: number | null; // 0/1
 };
 
 async function ensureUserProfilesTable() {
@@ -265,11 +270,34 @@ async function ensureUserProfilesTable() {
       company TEXT,
       title TEXT,
       website TEXT,
+
+      -- ✅ signature "Luxury"
+      logo_url TEXT,
+      accent_color TEXT,
+      logo_height INTEGER,
+      signature_enabled INTEGER NOT NULL DEFAULT 1,
+
       updated_at INTEGER NOT NULL DEFAULT (strftime('%s','now') * 1000)
     );
     `,
     []
   );
+
+  await dbExec(`ALTER TABLE user_profiles ADD COLUMN logo_url TEXT;`, []).catch(
+    () => {}
+  );
+  await dbExec(
+    `ALTER TABLE user_profiles ADD COLUMN accent_color TEXT;`,
+    []
+  ).catch(() => {});
+  await dbExec(
+    `ALTER TABLE user_profiles ADD COLUMN logo_height INTEGER;`,
+    []
+  ).catch(() => {});
+  await dbExec(
+    `ALTER TABLE user_profiles ADD COLUMN signature_enabled INTEGER NOT NULL DEFAULT 1;`,
+    []
+  ).catch(() => {});
 }
 
 function clean(v: any) {
@@ -278,8 +306,51 @@ function clean(v: any) {
   return s.length ? s : null;
 }
 
-function buildSignature(profile: DbUserProfile | null, langCode: string) {
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function normalizeUrl(u: string) {
+  const s = u.trim();
+  if (!s) return null;
+  if (s.startsWith("http://") || s.startsWith("https://")) return s;
+  return `https://${s}`;
+}
+
+// Détection simple : on n’ajoute la signature HTML que si on repère une formule de fin.
+function shouldAppendSignature(body: string, langCode: string) {
+  const tail = body.slice(Math.max(0, body.length - 700)).toLowerCase();
+
+  const patternsByLang: Record<string, string[]> = {
+    fr: [
+      "cordialement",
+      "bien à vous",
+      "bien a vous",
+      "sincèrement",
+      "sincerement",
+      "merci,",
+      "merci.",
+      "bonne journée",
+      "bonne journee",
+    ],
+    en: ["best regards", "kind regards", "regards", "sincerely", "thank you,"],
+    es: ["saludos", "atentamente", "gracias,"],
+    de: ["mit freundlichen grüßen", "mit freundlichen gruessen", "danke,"],
+    it: ["cordiali saluti", "distinti saluti", "grazie,"],
+    pt: ["cumprimentos", "atenciosamente", "obrigado,"],
+  };
+
+  const pats = patternsByLang[langCode] ?? patternsByLang["fr"];
+  return pats.some((p) => tail.includes(p));
+}
+
+function buildLuxurySignatureHtml(profile: DbUserProfile | null) {
   if (!profile) return null;
+  if ((profile.signature_enabled ?? 1) === 0) return null;
 
   const first = clean(profile.first_name);
   const last = clean(profile.last_name);
@@ -287,70 +358,134 @@ function buildSignature(profile: DbUserProfile | null, langCode: string) {
   const company = clean(profile.company);
   const phone = clean(profile.phone);
   const address = clean(profile.address);
-  const website = clean(profile.website);
-
-  const lines: string[] = [];
+  const websiteRaw = clean(profile.website);
 
   const fullName = [first, last].filter(Boolean).join(" ").trim();
-  if (fullName) lines.push(fullName);
-
   const titleCompany = [title, company].filter(Boolean).join(" — ").trim();
-  if (titleCompany) lines.push(titleCompany);
 
-  const phoneLabel =
-    langCode === "en"
-      ? "Phone"
-      : langCode === "de"
-      ? "Tel."
-      : langCode === "es"
-      ? "Tel."
-      : langCode === "it"
-      ? "Tel."
-      : langCode === "pt"
-      ? "Tel."
-      : "Tél.";
+  const websiteUrl = websiteRaw ? normalizeUrl(websiteRaw) : null;
+  const websiteLabel = websiteRaw
+    ? websiteRaw.replace(/^https?:\/\//i, "")
+    : null;
 
-  if (phone) lines.push(`${phoneLabel} : ${phone}`);
+  const logoUrl = clean(profile.logo_url);
+  const accent = clean(profile.accent_color) ?? "#C8A24A";
+  const logoHeight = Number(profile.logo_height ?? 70);
 
-  if (address) lines.push(address);
+  const hasAny =
+    !!fullName || !!titleCompany || !!phone || !!address || !!websiteUrl;
+  if (!hasAny && !logoUrl) return null;
 
-  const websiteLabel =
-    langCode === "en"
-      ? "Website"
-      : langCode === "de"
-      ? "Web"
-      : langCode === "es"
-      ? "Web"
-      : langCode === "it"
-      ? "Sito"
-      : langCode === "pt"
-      ? "Site"
-      : "Site";
+  const leftPart = logoUrl
+    ? `
+      <td style="padding:0 18px 0 0; vertical-align:middle;">
+        <img
+          src="${escapeHtml(logoUrl)}"
+          alt="Logo"
+          height="${logoHeight}"
+          style="display:block; height:${logoHeight}px; width:auto; border:0; outline:none; text-decoration:none;"
+        />
+      </td>
+      <td style="width:1px; background:${escapeHtml(accent)};">&nbsp;</td>
+    `
+    : ``;
 
-  if (website) lines.push(`${websiteLabel} : ${website}`);
+  const rightPad = logoUrl ? `padding:0 0 0 18px;` : `padding:0;`;
 
-  if (lines.length === 0) return null;
+  const infoParts: string[] = [];
 
-  // signature prête à coller
-  return lines.join("\n");
+  if (fullName) {
+    infoParts.push(
+      `<div style="font-size:16px; font-weight:700; letter-spacing:0.2px; color:${escapeHtml(
+        accent
+      )}; line-height:1.2;">${escapeHtml(fullName)}</div>`
+    );
+  }
+
+  if (titleCompany) {
+    infoParts.push(
+      `<div style="font-size:12.5px; line-height:1.35; margin-top:2px; color:#2B2B2B;">${escapeHtml(
+        titleCompany
+      )}</div>`
+    );
+  }
+
+  if (phone || websiteUrl || address) {
+    infoParts.push(`<div style="height:10px; line-height:10px;">&nbsp;</div>`);
+  }
+
+  if (phone) {
+    infoParts.push(
+      `<div style="font-size:12.5px; line-height:1.5; color:#2B2B2B;">
+        <span style="color:#7A7A7A;">☎</span><span style="margin-left:6px;">${escapeHtml(
+          phone
+        )}</span>
+      </div>`
+    );
+  }
+
+  if (websiteUrl && websiteLabel) {
+    infoParts.push(
+      `<div style="font-size:12.5px; line-height:1.5; color:#2B2B2B;">
+        <span style="color:#7A7A7A;">🌐</span>
+        <span style="margin-left:6px;">
+          <a href="${escapeHtml(
+            websiteUrl
+          )}" style="color:#2B2B2B; text-decoration:none;">${escapeHtml(
+            websiteLabel
+          )}</a>
+        </span>
+      </div>`
+    );
+  }
+
+  if (address) {
+    const safe = escapeHtml(address).replace(/\n/g, "<br />");
+    infoParts.push(
+      `<div style="font-size:12.5px; line-height:1.5; margin-top:2px; color:#2B2B2B;">${safe}</div>`
+    );
+  }
+
+  const html = `
+<!-- MailCoach Luxury Signature -->
+<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+  <tr>
+    ${leftPart}
+    <td style="${rightPad} vertical-align:middle; font-family:Arial, Helvetica, sans-serif; color:#2B2B2B;">
+      ${infoParts.join("\n")}
+    </td>
+  </tr>
+</table>
+<!-- /MailCoach Luxury Signature -->
+  `.trim();
+
+  return html;
 }
 
-async function getUserSignature(email: string, langCode: string) {
+async function getUserSignatureHtml(email: string) {
   try {
     await ensureUserProfilesTable();
 
     const profile = await dbGet<DbUserProfile>(
-      `SELECT email, first_name, last_name, phone, address, company, title, website
+      `SELECT
+        email,
+        first_name, last_name, phone, address, company, title, website,
+        logo_url, accent_color, logo_height, signature_enabled
        FROM user_profiles
        WHERE lower(email) = ? LIMIT 1`,
       [email.toLowerCase()]
     );
 
-    return buildSignature(profile ?? null, langCode);
+    return buildLuxurySignatureHtml(profile ?? null);
   } catch (e) {
-    console.error("getUserSignature error:", e);
+    console.error("getUserSignatureHtml error:", e);
     return null;
   }
+}
+
+function textToHtmlWithBr(text: string) {
+  const safe = escapeHtml(text);
+  return safe.split("\n").map((l) => l.trimEnd()).join("<br>");
 }
 
 export async function POST(req: NextRequest) {
@@ -404,12 +539,8 @@ export async function POST(req: NextRequest) {
     const currentSubject = typeof subject === "string" ? subject : "";
     const lang = normalizeLanguage(language);
 
-    // ✅ Signature (optionnelle) basée sur le profil utilisateur
-    const signature = await getUserSignature(email, lang.code);
-
-    const signatureBlock = signature
-      ? `\n\n---\nSIGNATURE À UTILISER (copie exactement, sans rien ajouter) :\n${signature}\n---\n`
-      : `\n\n---\nAUCUNE SIGNATURE DISPONIBLE (profil vide ou ignoré)\n---\n`;
+    // ✅ On récupère la signature HTML (Luxury) et on l’ajoute après
+    const signatureHtml = await getUserSignatureHtml(email);
 
     const prompt = `
 Tu es un assistant qui améliore des emails professionnels.
@@ -425,20 +556,10 @@ Tu es un assistant qui améliore des emails professionnels.
 ⭐ LANGUE OBLIGATOIRE ⭐
 - Tu dois écrire la réponse en : ${lang.label} (code: ${lang.code})
 
-⭐ POLITESSE + SIGNATURE (TRÈS IMPORTANT) ⭐
-1) Tu dois décider toi-même si le texte est un vrai email adressé à quelqu’un.
-- Si c’est un email adressé à un destinataire (demande, réponse, relance, proposition, etc.) :
-  ✅ dans la grande majorité des cas, ajoute une formule de fin naturelle adaptée (selon la langue et le ton).
-- Si le texte n’est PAS un email destiné à être envoyé (notes perso, checklist, brouillon interne, etc.) :
-  ❌ n’ajoute PAS de formule de politesse.
-
-2) SIGNATURE :
-- Si tu ajoutes une formule de politesse, ALORS :
-  - si une signature est fournie ci-dessous, tu dois la coller à la toute fin, exactement telle quelle (sans inventer d’infos).
-  - si aucune signature n’est fournie, ne mets pas de signature.
-- Si tu N’ajoutes PAS de formule de politesse, tu ne dois JAMAIS ajouter de signature.
-
-${signatureBlock}
+⭐ IMPORTANT (SIGNATURE) ⭐
+- Tu peux ajouter une formule de fin (ex: Cordialement / Best regards) si c'est un email destiné à être envoyé.
+- MAIS : tu ne dois JAMAIS ajouter de signature d'identité (nom/tel/adresse/site). Zéro signature.
+- La signature sera ajoutée automatiquement après.
 
 Objet actuel :
 "${currentSubject}"
@@ -447,7 +568,7 @@ Corps à améliorer :
 "${text}"
 
 Réponds uniquement avec le JSON.
-`;
+`.trim();
 
     const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
@@ -466,14 +587,23 @@ Réponds uniquement avec le JSON.
     }
 
     const improvedSubject = (parsed.subject || currentSubject || "").trim();
-    const improvedBody = (parsed.body || text).trim();
+    const improvedBodyText = (parsed.body || text).trim();
+
+    const appendOk =
+      !!signatureHtml && shouldAppendSignature(improvedBodyText, lang.code);
+
+    const bodyHtml = appendOk
+      ? `${textToHtmlWithBr(improvedBodyText)}<br><br>${signatureHtml}`
+      : `${textToHtmlWithBr(improvedBodyText)}`;
 
     await consumeCredit(user);
 
     return json(
       {
         subject: improvedSubject,
-        body: improvedBody,
+        body: improvedBodyText, // texte
+        bodyHtml, // ✅ HTML prêt pour Gmail
+        signatureAppended: appendOk,
         plan: user.plan,
         emailUsed: email,
         identitySource: source,

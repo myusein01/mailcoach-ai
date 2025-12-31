@@ -1,4 +1,4 @@
-// content.js (VERSION COMPLÈTE – bouton flottant + langue actuelle au-dessus + loading sur le bouton)
+// extension/content.js (VERSION COMPLÈTE – bouton flottant + langue actuelle au-dessus + loading sur le bouton)
 console.log("MailCoach AI content script loaded");
 
 // Zone de texte principale (corps du mail)
@@ -62,7 +62,6 @@ function extractEmailFromText(text) {
 }
 
 function getActiveGmailEmail() {
-  // 1) souvent dans le bouton compte Google (tooltip/aria-label)
   const candidates = [];
 
   const accountBtn =
@@ -77,7 +76,6 @@ function getActiveGmailEmail() {
     candidates.push(accountBtn.getAttribute("title"));
   }
 
-  // 2) certains éléments contiennent l’email dans data-tooltip / aria-label
   const tooltipEl =
     document.querySelector('[data-tooltip*="@"]') ||
     document.querySelector('[aria-label*="@"]') ||
@@ -89,7 +87,6 @@ function getActiveGmailEmail() {
     candidates.push(tooltipEl.getAttribute("title"));
   }
 
-  // 3) fallback brut : texte global (moins fiable)
   candidates.push(document.body?.innerText || "");
 
   for (const c of candidates) {
@@ -173,7 +170,7 @@ function createLanguageChip(initialLangCode) {
 
   Object.assign(chip.style, {
     position: "fixed",
-    bottom: "66px", // ✅ au-dessus du bouton principal
+    bottom: "66px",
     right: "20px",
     zIndex: "9999",
     padding: "8px 14px",
@@ -193,9 +190,7 @@ function createLanguageChip(initialLangCode) {
 function updateLanguageChip(chip, langCode) {
   if (!chip) return;
   chip.innerText = `🌐 ${langChipText(langCode)}`;
-  chip.title = `Langue actuelle : ${langLabel(langCode)} (${langChipText(
-    langCode
-  )})`;
+  chip.title = `Langue actuelle : ${langLabel(langCode)} (${langChipText(langCode)})`;
 }
 
 // ---------- UI : Modal langue ----------
@@ -225,8 +220,7 @@ function createLanguageModal(onPick) {
   title.style.marginBottom = "10px";
 
   const hint = document.createElement("div");
-  hint.innerText =
-    "La langue choisie sera utilisée pour la prochaine amélioration.";
+  hint.innerText = "La langue choisie sera utilisée pour la prochaine amélioration.";
   hint.style.fontSize = "12px";
   hint.style.color = "#94a3b8";
   hint.style.marginBottom = "12px";
@@ -307,7 +301,7 @@ async function improveEmail(mainBtn) {
         text: originalBody,
         subject: originalSubject,
         userEmail,
-        language, // ✅ langue choisie
+        language,
       }),
     });
 
@@ -329,12 +323,15 @@ async function improveEmail(mainBtn) {
     }
 
     const improvedSubject = data.subject || originalSubject;
-    const improvedBody = data.body || originalBody;
+
+    // ✅ NOUVEAU : HTML direct (inclut signature Luxury si applicable)
+    const improvedBodyHtml = typeof data.bodyHtml === "string" ? data.bodyHtml : null;
+
+    // fallback texte (ancien comportement)
+    const improvedBodyText = data.body || originalBody;
 
     const ok = confirm(
-      `Améliorer votre mail ?\n\nLangue: ${langLabel(
-        language
-      )} (${language.toUpperCase()})`
+      `Améliorer votre mail ?\n\nLangue: ${langLabel(language)} (${language.toUpperCase()})`
     );
     if (!ok) return;
 
@@ -345,13 +342,17 @@ async function improveEmail(mainBtn) {
       subjectInput.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
-    // corps (HTML avec <br>)
-    const html = improvedBody
-      .split("\n")
-      .map((line) => line.trim())
-      .join("<br>");
+    // corps
+    if (improvedBodyHtml) {
+      box.innerHTML = improvedBodyHtml;
+    } else {
+      const html = improvedBodyText
+        .split("\n")
+        .map((line) => line.trim())
+        .join("<br>");
+      box.innerHTML = html;
+    }
 
-    box.innerHTML = html;
     box.dispatchEvent(new Event("input", { bubbles: true }));
     box.dispatchEvent(new Event("change", { bubbles: true }));
   } catch (err) {
