@@ -86,7 +86,7 @@ function normalizeLanguage(input: any): {
 } {
   const raw = String(input ?? "").trim().toLowerCase();
 
-  const allowed = ["fr", "nl", "en", "es", "de", "tr", "it", "pt", "ro", "bg"] as const;
+  const allowed = ["fr", "en", "nl", "es", "de", "tr", "it", "pt", "ro", "bg"] as const;
   if ((allowed as readonly string[]).includes(raw)) {
     const label =
       raw === "fr"
@@ -376,6 +376,7 @@ function shouldAppendSignature(body: string, langCode: string) {
       "un saludo",
       "gracias,",
       "gracias.",
+      "Cordialmente"
     ],
 
     de: [
