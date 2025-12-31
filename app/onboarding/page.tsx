@@ -133,23 +133,16 @@ function buildLuxurySignatureHtml(p: {
     );
   }
 
-  // ✅ modif: logo website + alignement (sans toucher au reste)
+  // ✅ MODIF UNIQUEMENT ICI : aligner website EXACTEMENT comme le téléphone
   if (websiteUrl && websiteLabel) {
     infoParts.push(
       `<div style="font-size:12.5px; line-height:1.5; color:#2B2B2B;">
-        <img
-          src="https://api.iconify.design/mdi/web.svg?color=%237A7A7A"
-          width="12"
-          height="12"
-          alt="Website"
-          style="display:inline-block; vertical-align:middle; border:0; outline:none; text-decoration:none;"
-        />
-        <span style="margin-left:6px; display:inline-block; vertical-align:middle;">
+        <span style="color:#7A7A7A; display:inline-block; width:14px; text-align:center;">🌐</span><span style="margin-left:6px;">
           <a href="${escapeHtml(
             websiteUrl
           )}" style="color:#2B2B2B; text-decoration:none;">${escapeHtml(
-            websiteLabel
-          )}</a>
+        websiteLabel
+      )}</a>
         </span>
       </div>`
     );
