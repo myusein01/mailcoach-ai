@@ -118,11 +118,11 @@ function normalizeLanguage(input: any): {
   if (raw.startsWith("nl")) return { code: "nl", label: "Nederlands" };
   if (raw.startsWith("es")) return { code: "es", label: "Español" };
   if (raw.startsWith("de")) return { code: "de", label: "Deutsch" };
-  if (raw.startsWith("en")) return { code: "tr", label: "Türkçe" };
+  if (raw.startsWith("tr")) return { code: "tr", label: "Türkçe" };
   if (raw.startsWith("it")) return { code: "it", label: "Italiano" };
   if (raw.startsWith("pt")) return { code: "pt", label: "Português" };
-  if (raw.startsWith("en")) return { code: "ro", label: "Română" };
-  if (raw.startsWith("en")) return { code: "bg", label: "Български" };
+  if (raw.startsWith("ro")) return { code: "ro", label: "Română" };
+  if (raw.startsWith("bg")) return { code: "bg", label: "Български" };
 
   return { code: "fr", label: "Français" };
 }
@@ -376,7 +376,8 @@ function shouldAppendSignature(body: string, langCode: string) {
       "un saludo",
       "gracias,",
       "gracias.",
-      "Cordialmente"
+      "cordialmente",
+      "cordialmente,"
     ],
 
     de: [
