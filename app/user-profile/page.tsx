@@ -1,4 +1,4 @@
-// app/onboarding/page.tsx
+// app/user-profile/page.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
@@ -168,14 +168,13 @@ const COLOR_PRESETS = [
   { name: "Gris", value: "#6B7280" },
 ];
 
-export default function OnboardingPage() {
+export default function UserProfilePage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // champs existants
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -184,12 +183,10 @@ export default function OnboardingPage() {
   const [title, setTitle] = useState("");
   const [website, setWebsite] = useState("");
 
-  // ✅ signature (toujours activée)
   const [logoUrl, setLogoUrl] = useState("");
   const [accentColor, setAccentColor] = useState("#C8A24A");
   const [logoHeight, setLogoHeight] = useState(70);
 
-  // upload logo
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -222,7 +219,6 @@ export default function OnboardingPage() {
         setTitle(p?.title ?? "");
         setWebsite(p?.website ?? "");
 
-        // ✅ signature
         setLogoUrl(p?.logo_url ?? "");
         setAccentColor(p?.accent_color ?? "#C8A24A");
         setLogoHeight(
@@ -275,7 +271,6 @@ export default function OnboardingPage() {
     if (!file) return;
     setUploadError(null);
 
-    // petites validations client
     if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) {
       setUploadError("Format non supporté. Utilise PNG, JPG ou WEBP.");
       return;
@@ -332,11 +327,10 @@ export default function OnboardingPage() {
           title,
           website,
 
-          // ✅ signature (toujours activée)
           logo_url: logoUrl,
           accent_color: accentColor,
           logo_height: logoHeight,
-          signature_enabled: 1,
+          signature_enabled: 1, // ✅ toujours activé
         }),
       });
 
@@ -368,15 +362,14 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       <div className="mx-auto max-w-4xl px-4 py-14">
-        <h1 className="text-4xl font-bold tracking-tight mb-3">Ta signature</h1>
+        <h1 className="text-4xl font-bold tracking-tight mb-3">
+          Modifier ma signature
+        </h1>
         <p className="text-slate-300 mb-10">
-          Ces infos seront ajoutées automatiquement en fin de mail (signature).
-          <br />
-          Remplis uniquement ce que tu veux afficher.
+          Ton logo + tes infos seront ajoutés automatiquement en bas des mails.
         </p>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {/* FORM */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
             <div className="grid grid-cols-2 gap-3">
               <input
@@ -403,7 +396,7 @@ export default function OnboardingPage() {
             <textarea
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Adresse (tu peux mettre plusieurs lignes)"
+              placeholder="Adresse (plusieurs lignes possible)"
               className="mt-3 w-full min-h-[90px] rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
@@ -425,7 +418,7 @@ export default function OnboardingPage() {
             <input
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              placeholder="Site web (ex: luxury-apartments.com)"
+              placeholder="Site web"
               className="mt-3 w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
@@ -435,7 +428,6 @@ export default function OnboardingPage() {
                 Logo + barre verticale + infos (style carte).
               </div>
 
-              {/* ✅ Upload logo */}
               <div className="mt-4">
                 <div className="text-xs text-slate-300 mb-2">Logo (fichier)</div>
 
@@ -454,7 +446,6 @@ export default function OnboardingPage() {
                     disabled={uploadingLogo}
                     onChange={(e) =>
                       onPickLogo(e.target.files?.[0] ?? null).finally(() => {
-                        // reset pour pouvoir re-uploader le même fichier
                         if (e.currentTarget) e.currentTarget.value = "";
                       })
                     }
@@ -470,7 +461,6 @@ export default function OnboardingPage() {
                 </p>
               </div>
 
-              {/* ✅ Choix couleur preset */}
               <div className="mt-5">
                 <div className="text-xs text-slate-300 mb-2">
                   Couleur de la barre
@@ -501,7 +491,6 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* ✅ Taille clairement indiquée */}
               <div className="mt-5">
                 <div className="text-xs text-slate-300 mb-2">
                   Taille du logo (hauteur en pixels)
@@ -538,16 +527,11 @@ export default function OnboardingPage() {
                 disabled={saving}
                 className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-900/70 disabled:opacity-60 transition"
               >
-                Passer
+                Retour
               </button>
             </div>
-
-            <p className="mt-3 text-xs text-slate-500">
-              Tu pourras modifier ça plus tard depuis la page d’accueil.
-            </p>
           </div>
 
-          {/* PREVIEW */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
             <h2 className="text-lg font-semibold mb-3">Aperçu</h2>
 
@@ -563,7 +547,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="mt-5 text-xs text-slate-400">
-              L’aperçu ci-dessus correspond à ce qui sera inséré en fin de mail (Gmail).
+              Cet aperçu correspond au bloc inséré dans Gmail.
             </div>
           </div>
         </div>

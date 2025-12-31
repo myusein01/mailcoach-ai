@@ -14,11 +14,11 @@ type UserProfileRow = {
   title: string | null;
   website: string | null;
 
-  // ✅ Signature "Luxury"
+  // ✅ Signature Luxury
   logo_url: string | null;
   accent_color: string | null;
   logo_height: number | null;
-  signature_enabled: number | null; // 0/1
+  signature_enabled: number | null;
 
   updated_at: number;
 };
@@ -36,7 +36,6 @@ async function ensureUserProfilesTable() {
       title TEXT,
       website TEXT,
 
-      -- ✅ signature "Luxury"
       logo_url TEXT,
       accent_color TEXT,
       logo_height INTEGER,
@@ -48,7 +47,7 @@ async function ensureUserProfilesTable() {
     []
   );
 
-  // ✅ migrations safe si table déjà existante
+  // migrations safe si table existait déjà
   await dbExec(`ALTER TABLE user_profiles ADD COLUMN logo_url TEXT;`, []).catch(
     () => {}
   );
@@ -72,8 +71,7 @@ function cleanStr(v: any) {
   return s.length ? s : null;
 }
 
-function cleanInt(v: any, fallback: number | null) {
-  if (v === null || v === undefined) return fallback;
+function cleanInt(v: any, fallback: number) {
   const n = Number(v);
   if (!Number.isFinite(n)) return fallback;
   return Math.round(n);
@@ -121,12 +119,13 @@ export async function POST(req: Request) {
   const title = cleanStr(body.title);
   const website = cleanStr(body.website);
 
-  // ✅ Signature "Luxury"
+  // ✅ Signature Luxury
   const logo_url = cleanStr(body.logo_url);
   const accent_color = cleanStr(body.accent_color);
   const logo_height = cleanInt(body.logo_height, 70);
-  const signature_enabled =
-    body.signature_enabled === 0 || body.signature_enabled === false ? 0 : 1;
+
+  // ✅ toujours activé
+  const signature_enabled = 1;
 
   await dbExec(
     `
