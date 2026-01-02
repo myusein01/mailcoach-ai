@@ -427,6 +427,229 @@ function createConfirmModal() {
   return { open };
 }
 
+// ---------- ⭐️ REVIEW PROMPT (après 20, puis +10 si "Plus tard") ----------
+const EXTENSION_ID = "ejddkpobljmcmoimcmmacikkjcecnfhk";
+const REVIEW_FIRST_AT = 20;
+const REVIEW_REPEAT_EVERY = 10;
+
+const REVIEW_URLS = {
+  // Nouveau store (souvent OK)
+  v2: `https://chromewebstore.google.com/detail/${EXTENSION_ID}/reviews`,
+  // Ancien store (fallback)
+  v1: `https://chrome.google.com/webstore/detail/${EXTENSION_ID}/reviews`,
+};
+
+function getReviewState() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(
+      [
+        "mailcoach_improveCount",
+        "mailcoach_reviewDisabled", // true => ne jamais redemander
+        "mailcoach_nextReviewAskAt", // prochain palier (20, 30, 40...)
+      ],
+      (res) => {
+        resolve({
+          count: Number(res.mailcoach_improveCount || 0),
+          disabled: Boolean(res.mailcoach_reviewDisabled),
+          nextAskAt:
+            typeof res.mailcoach_nextReviewAskAt === "number"
+              ? res.mailcoach_nextReviewAskAt
+              : Number(res.mailcoach_nextReviewAskAt || 0) || null,
+        });
+      }
+    );
+  });
+}
+
+function setReviewState(next) {
+  return new Promise((resolve) => chrome.storage.sync.set(next, resolve));
+}
+
+async function ensureReviewDefaults() {
+  const s = await getReviewState();
+  const patch = {};
+  if (!s.nextAskAt || s.nextAskAt < REVIEW_FIRST_AT) {
+    patch.mailcoach_nextReviewAskAt = REVIEW_FIRST_AT;
+  }
+  if (Object.keys(patch).length) await setReviewState(patch);
+}
+
+function createReviewModal() {
+  const existing = document.getElementById("mailcoach-review-backdrop");
+  if (existing) existing.remove();
+
+  const backdrop = document.createElement("div");
+  backdrop.id = "mailcoach-review-backdrop";
+  backdrop.style.position = "fixed";
+  backdrop.style.inset = "0";
+  backdrop.style.zIndex = "10002";
+  backdrop.style.background = "rgba(0,0,0,0.55)";
+  backdrop.style.display = "none";
+  backdrop.style.alignItems = "center";
+  backdrop.style.justifyContent = "center";
+
+  const modal = document.createElement("div");
+  Object.assign(modal.style, {
+    background: "#020617",
+    borderRadius: "14px",
+    padding: "16px",
+    width: "380px",
+    border: "1px solid #334155",
+    color: "#e5e7eb",
+    boxShadow: "0 10px 30px rgba(15,23,42,0.6)",
+  });
+
+  const title = document.createElement("div");
+  title.style.fontWeight = "900";
+  title.style.marginBottom = "10px";
+  title.innerText = "⭐ Vous aimez MailCoach AI ?";
+
+  const content = document.createElement("div");
+  content.style.fontSize = "12px";
+  content.style.color = "#cbd5e1";
+  content.style.marginBottom = "12px";
+  content.innerText =
+    "Si l’extension vous aide, une note sur le Chrome Web Store nous aide énormément (30 secondes).";
+
+  const actions = document.createElement("div");
+  Object.assign(actions.style, {
+    display: "flex",
+    gap: "10px",
+    justifyContent: "flex-end",
+    marginTop: "12px",
+    flexWrap: "wrap",
+  });
+
+  const neverBtn = document.createElement("button");
+  neverBtn.innerText = "Ne plus demander";
+  Object.assign(neverBtn.style, {
+    padding: "10px 14px",
+    borderRadius: "12px",
+    border: "1px solid #334155",
+    background: "transparent",
+    color: "#94a3b8",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: "800",
+  });
+  neverBtn.onmouseenter = () => (neverBtn.style.background = "rgba(148,163,184,0.08)");
+  neverBtn.onmouseleave = () => (neverBtn.style.background = "transparent");
+
+  const laterBtn = document.createElement("button");
+  laterBtn.innerText = "Plus tard";
+  Object.assign(laterBtn.style, {
+    padding: "10px 14px",
+    borderRadius: "12px",
+    border: "1px solid #334155",
+    background: "#0f172a",
+    color: "#e5e7eb",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: "800",
+  });
+  laterBtn.onmouseenter = () => (laterBtn.style.background = "#111c33");
+  laterBtn.onmouseleave = () => (laterBtn.style.background = "#0f172a");
+
+  const rateBtn = document.createElement("button");
+  rateBtn.innerText = "Noter ★★★★★";
+  Object.assign(rateBtn.style, {
+    padding: "10px 14px",
+    borderRadius: "12px",
+    border: "none",
+    background: "#3b82f6",
+    color: "white",
+    cursor: "pointer",
+    fontSize: "13px",
+    fontWeight: "900",
+  });
+  rateBtn.onmouseenter = () => (rateBtn.style.background = "#2563eb");
+  rateBtn.onmouseleave = () => (rateBtn.style.background = "#3b82f6");
+
+  actions.appendChild(neverBtn);
+  actions.appendChild(laterBtn);
+  actions.appendChild(rateBtn);
+
+  modal.appendChild(title);
+  modal.appendChild(content);
+  modal.appendChild(actions);
+  backdrop.appendChild(modal);
+
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) {
+      backdrop.style.display = "none";
+      if (typeof backdrop._resolve === "function") backdrop._resolve("later");
+    }
+  };
+
+  document.body.appendChild(backdrop);
+
+  function open() {
+    return new Promise((resolve) => {
+      backdrop._resolve = resolve;
+
+      laterBtn.onclick = () => {
+        backdrop.style.display = "none";
+        resolve("later");
+      };
+
+      neverBtn.onclick = () => {
+        backdrop.style.display = "none";
+        resolve("never");
+      };
+
+      rateBtn.onclick = () => {
+        backdrop.style.display = "none";
+        resolve("rate");
+      };
+
+      backdrop.style.display = "flex";
+    });
+  }
+
+  return { open };
+}
+
+async function maybeAskForReview() {
+  try {
+    await ensureReviewDefaults();
+    const s = await getReviewState();
+    if (s.disabled) return;
+
+    const nextAskAt = s.nextAskAt || REVIEW_FIRST_AT;
+    if (s.count < nextAskAt) return;
+
+    const reviewModal = createReviewModal();
+    const choice = await reviewModal.open();
+
+    if (choice === "never") {
+      await setReviewState({ mailcoach_reviewDisabled: true });
+      return;
+    }
+
+    if (choice === "rate") {
+      await setReviewState({ mailcoach_reviewDisabled: true });
+      // ouvre la page reviews
+      window.open(REVIEW_URLS.v2, "_blank");
+      return;
+    }
+
+    // "later" => prochain popup à +10 améliorations (30, 40, 50...)
+    const newNext = nextAskAt + REVIEW_REPEAT_EVERY;
+    // sécurité: si l’utilisateur a déjà dépassé le palier (cas rare), on pousse à count+10
+    const safeNext = Math.max(newNext, s.count + REVIEW_REPEAT_EVERY);
+    await setReviewState({ mailcoach_nextReviewAskAt: safeNext });
+  } catch (e) {
+    console.warn("Review prompt error:", e);
+  }
+}
+
+async function incrementImproveCountAndMaybePrompt() {
+  const s = await getReviewState();
+  const next = (s.count || 0) + 1;
+  await setReviewState({ mailcoach_improveCount: next });
+  await maybeAskForReview();
+}
+
 // ---------- ACTION PRINCIPALE ----------
 async function improveEmail(mainBtn) {
   const box = findComposeBox();
@@ -485,14 +708,14 @@ async function improveEmail(mainBtn) {
 
     const improvedSubject = data.subject || originalSubject;
 
-    // ✅ NOUVEAU : HTML direct (inclut signature Luxury si applicable)
+    // ✅ HTML direct (inclut signature Luxury si applicable)
     const improvedBodyHtml =
       typeof data.bodyHtml === "string" ? data.bodyHtml : null;
 
     // fallback texte (ancien comportement)
     const improvedBodyText = data.body || originalBody;
 
-    // ✅ MODIF: confirm() -> modal custom avec lien profil
+    // confirm modal avec lien profil
     const confirmModal = createConfirmModal();
     const ok = await confirmModal.open({
       languageText: `${langLabel(language)} (${language.toUpperCase()})`,
@@ -519,6 +742,9 @@ async function improveEmail(mainBtn) {
 
     box.dispatchEvent(new Event("input", { bubbles: true }));
     box.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // ✅ compteur + demande de note
+    await incrementImproveCountAndMaybePrompt();
   } catch (err) {
     console.error(err);
     alert("Erreur lors de l'appel à MailCoach AI.");
@@ -538,6 +764,9 @@ async function init() {
   const modal = createLanguageModal((newLang) => {
     updateLanguageChip(langChip, newLang);
   });
+
+  // init defaults review
+  ensureReviewDefaults().catch(() => {});
 
   mainBtn.addEventListener("click", () => improveEmail(mainBtn));
   langChip.addEventListener("click", () => {
