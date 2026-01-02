@@ -144,14 +144,8 @@ function buildLuxurySignatureHtml(p: {
     infoParts.push(
       `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; margin-top:2px;">
         <tr>
-          <td style="padding-right:6px; vertical-align:middle; line-height:0;">
-            <img
-              src="https://api.iconify.design/mdi/web.svg?color=%237A7A7A"
-              width="12"
-              height="12"
-              alt="Website"
-              style="display:block; border:0; outline:none; text-decoration:none;"
-            />
+          <td style="padding-right:6px; font-size:12px; color:#7A7A7A; vertical-align:middle;">
+            🌐
           </td>
           <td style="font-size:12.5px; line-height:1.2; color:#2B2B2B; vertical-align:middle;">
             <a
