@@ -246,21 +246,21 @@ export default function PricingPage({
             <h3 className="font-semibold">Pourquoi l’extension plutôt que le site ?</h3>
             <p className="mt-2 text-sm text-slate-300">
               Parce que tu restes dans Gmail. En 1 clic, l’objet et le corps sont améliorés
-              directement.
+              directement. C'est un gain de temps et de professionalisme considérable.
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
             <h3 className="font-semibold">Le plan Pro débloque quoi ?</h3>
             <p className="mt-2 text-sm text-slate-300">
-              Plus de limite mensuelle, meilleure qualité, et l’extension Gmail en usage illimité.
+              L'extension Gmail en usage illimité.
             </p>
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
             <h3 className="font-semibold">Est-ce sécurisé ?</h3>
             <p className="mt-2 text-sm text-slate-300">
-              On ne lit pas ta boîte. Tu envoies uniquement le texte du mail que tu veux améliorer au moment où tu cliques.
+              Oui. On ne lit pas ta boîte. Nous modifions uniquement le texte et l'objet du mail que tu veux améliorer.
             </p>
           </div>
         </section>

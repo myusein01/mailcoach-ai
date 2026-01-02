@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const SMTP_PASS = process.env.SMTP_PASS;
 
     // ✅ Adresse de réception (toi)
-    const CONTACT_TO = process.env.CONTACT_TO || "myusein01@gmail.com";
+    const CONTACT_TO = process.env.CONTACT_TO || "support@mailcoach-ai.com";
 
     // ✅ From: doit souvent être le compte SMTP (sinon spam / rejet)
     const FROM_EMAIL = process.env.CONTACT_FROM || SMTP_USER;
