@@ -592,7 +592,8 @@ export default function OnboardingPage() {
 
               <button
                 onClick={async () => {
-                  await save(); // ça POST /api/user-profile et enlève firstTime
+                  await fetch("/api/user-profile/complete", { method: "POST" }).catch(() => {});
+                  router.push("/");
                 }}
                 disabled={saving}
                 className="inline-flex flex-1 items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-900/70 disabled:opacity-60 transition"
