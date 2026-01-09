@@ -223,10 +223,11 @@ export default function Home() {
                 
 
                 <ul className="text-sm text-slate-300 space-y-2">
-                  <li>• Ton plus clair et plus poli</li> <br />
-                  <li>• Structure + meilleure lisibilité</li> <br />
-                  <li>• Pas de fautes ni de formulations bancales</li> <br />
-                  <li>• Gain en temps et en crédibilité</li>
+                  <li>• Ton plus clair et plus poli</li> 
+                  <li>• Structure + meilleure lisibilité</li> 
+                  <li>• Pas de fautes ni de formulations bancales</li> 
+                  <li>• Gain de temps énorme au quotidien</li>
+                  <li>• Gain en crédibilité</li>
                 </ul>
               </div>
 
