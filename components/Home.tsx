@@ -258,7 +258,7 @@ export default function Home() {
               <p className="text-xs uppercase tracking-wide text-slate-300/80 mb-2">
                 Exemple
               </p>
-              <h3 className="text-lg font-semibold mb-3">Avant → Après</h3>
+              <h3 className="text-lg font-semibold mb-3">Avant → Après (en 1 clic)</h3>
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
                 <div className="text-slate-400 text-xs mb-2">Avant</div>
