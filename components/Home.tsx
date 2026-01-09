@@ -154,7 +154,7 @@ export default function Home() {
 
               <p className="mt-2 text-sm text-slate-400 max-w-2xl">
                 Une extension Chrome qui reformule, structure et rend tes
-                réponses plus professionnelles — sans perdre de temps.
+                réponses plus professionnelles, sans perdre de temps.
               </p>
             </div>
 
@@ -164,18 +164,18 @@ export default function Home() {
                 onClick={() => signIn("google", { callbackUrl: "/" })}
                 className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
               >
-                🔐 Se connecter avec Google
-              </button>
-
-              <button
-                onClick={openInstall}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-              >
                 ✨ Installer l’extension
               </button>
 
               <button
                 onClick={openGmail}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+              >
+                🔐 Se connecter avec Google
+              </button>
+
+              <button
+                onClick={openInstall}
                 className="inline-flex items-center justify-center rounded-xl border border-slate-800 px-6 py-3 text-sm text-slate-200 hover:bg-slate-900/40 transition"
               >
                 Ouvrir Gmail
@@ -190,7 +190,7 @@ export default function Home() {
           {/* COMMENT ÇA MARCHE */}
           <section className="mb-10">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-              <h2 className="text-xl font-semibold mb-4">Comment ça marche</h2>
+              <h2 className="text-xl font-semibold mb-4">Comment ça marche ?</h2>
 
               <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
                 <li className="flex gap-3">
@@ -222,19 +222,20 @@ export default function Home() {
               <ul className="text-sm text-slate-300 space-y-2">
                 <li>• Ton plus clair et plus poli</li>
                 <li>• Structure + meilleure lisibilité</li>
-                <li>• Moins de fautes et de formulations bancales</li>
+                <li>• Pas de fautes ni de formulations bancales</li>
+                <li>• Gain en crédibilité</li>
                 <li>• Gain de temps énorme au quotidien</li>
               </ul>
 
               <div className="mt-5 flex flex-col gap-2">
                 <button
-                  onClick={() => signIn("google", { callbackUrl: "/" })}
+                  onClick={openInstall}
                   className="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
                 >
                   Commencer maintenant
                 </button>
                 <button
-                  onClick={openPlans}
+                  onClick={() => signIn("google", { callbackUrl: "/" })}
                   className="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
                 >
                   Voir les plans
@@ -242,7 +243,7 @@ export default function Home() {
               </div>
 
               <p className="mt-3 text-[11px] text-slate-500">
-                Tu peux tester avant de payer.
+                Cinq essais gratuits.
               </p>
             </div>
 
@@ -255,14 +256,18 @@ export default function Home() {
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
                 <div className="text-slate-400 text-xs mb-2">Avant</div>
                 <div className="mb-4">
-                  “Salut, on peut faire ça vite ? j’ai pas trop le temps merci”
+                  “Salut, je vous ecris pour connaitre quand vous etes disponibles, possible de faire un appel ?”
                 </div>
 
                 <div className="text-slate-400 text-xs mb-2">Après</div>
                 <div>
-                  “Bonjour, oui bien sûr. Je peux m’en occuper rapidement.
-                  Dites-moi simplement votre disponibilité et je vous confirme
-                  cela.”
+                  “Bonjour,
+
+Je souhaiterais connaître vos disponibilités afin d'organiser un appel. Pourriez-vous me faire part des créneaux qui vous conviennent ?
+
+Cordialement,
+
+John L. - CEO MailCoach”
                 </div>
               </div>
 
