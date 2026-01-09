@@ -151,8 +151,6 @@ export default function Home() {
                 Améliore tes e-mails <strong>directement dans Gmail</strong>, en
                 1 clic.
               </p>
-
-              
             </div>
 
             {/* CTA */}
@@ -177,7 +175,6 @@ export default function Home() {
               >
                 Se connecter
               </button>
-
             </div>
 
             <p className="text-xs text-slate-400">
@@ -209,39 +206,50 @@ export default function Home() {
 
           {/* ✅ AU LIEU DES CARTES STARTER/PRO */}
           <section className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
-              <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
-                Résultat
-              </p>
-              <h3 className="text-lg font-semibold mb-3">
-                Des réponses plus pro, sans perdre de temps
-              </h3>
-
-              <ul className="text-sm text-slate-300 space-y-2">
-                <li>• Ton plus clair et plus poli</li>
-                <li>• Structure + meilleure lisibilité</li>
-                <li>• Pas de fautes ni de formulations bancales</li>
-                <li>• Gain en temps et en crédibilité</li>
-              </ul>
-
-              <div className="mt-5 flex flex-col gap-2">
-                <button
-                  onClick={openInstall}
-                  className="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
-                >
-                  Commencer maintenant
-                </button>
-                <button
-                  onClick={() => signIn("google", { callbackUrl: "/" })}
-                  className="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-                >
-                  Voir les plans
-                </button>
+            {/* ✅ MODIF UNIQUEMENT ICI: meilleure répartition verticale */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 flex flex-col">
+              {/* Haut */}
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                  Résultat
+                </p>
               </div>
 
-              <p className="mt-3 text-[11px] text-slate-500">
-                Cinq essais gratuits.
-              </p>
+              {/* Milieu (centré verticalement) */}
+              <div className="flex-1 flex flex-col justify-center">
+                <h3 className="text-lg font-semibold mb-3">
+                  Des réponses plus pro, sans perdre de temps
+                </h3>
+
+                <ul className="text-sm text-slate-300 space-y-2">
+                  <li>• Ton plus clair et plus poli</li>
+                  <li>• Structure + meilleure lisibilité</li>
+                  <li>• Pas de fautes ni de formulations bancales</li>
+                  <li>• Gain en temps et en crédibilité</li>
+                </ul>
+              </div>
+
+              {/* Bas (collé) */}
+              <div className="mt-6">
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={openInstall}
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
+                  >
+                    Commencer maintenant
+                  </button>
+                  <button
+                    onClick={() => signIn("google", { callbackUrl: "/" })}
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+                  >
+                    Voir les plans
+                  </button>
+                </div>
+
+                <p className="mt-3 text-[11px] text-slate-500">
+                  Cinq essais gratuits.
+                </p>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-blue-500/40 bg-gradient-to-br from-blue-600/20 via-slate-900 to-indigo-600/20 p-6">
@@ -253,20 +261,20 @@ export default function Home() {
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
                 <div className="text-slate-400 text-xs mb-2">Avant</div>
                 <div className="mb-4">
-                  “Salut, je vous ecris pour connaitre quand vous etes disponibles, possible de faire un appel ?”
+                  “Salut, je vous ecris pour connaitre quand vous etes
+                  disponibles, possible de faire un appel ?”
                 </div>
 
                 <div className="text-slate-400 text-xs mb-2">Après</div>
                 <div>
                   “Bonjour, <br />
                   <br />
-
-                  Je souhaiterais connaître vos disponibilités afin d'organiser un appel. <br />
+                  Je souhaiterais connaître vos disponibilités afin d'organiser
+                  un appel. <br />
                   <br />
-                  
-                  Pourriez-vous me faire part des créneaux qui vous conviennent ? <br />
+                  Pourriez-vous me faire part des créneaux qui vous conviennent ?{" "}
                   <br />
-                  
+                  <br />
                   Cordialement,”
                 </div>
               </div>
@@ -547,7 +555,9 @@ export default function Home() {
               )}
             </ul>
 
-            <p className="text-xs text-slate-500">Connecté en tant que {userEmail}</p>
+            <p className="text-xs text-slate-500">
+              Connecté en tant que {userEmail}
+            </p>
 
             {isPro && (
               <button
@@ -572,7 +582,8 @@ export default function Home() {
                 </li>
 
                 <li>
-                  Accès Pro : <span className="text-slate-300">{statusLabel}</span>
+                  Accès Pro :{" "}
+                  <span className="text-slate-300">{statusLabel}</span>
                 </li>
 
                 <li>
@@ -590,7 +601,9 @@ export default function Home() {
                 ) : null}
               </ul>
 
-              <p className="mt-4 text-xs text-slate-500">Connecté en tant que {userEmail}</p>
+              <p className="mt-4 text-xs text-slate-500">
+                Connecté en tant que {userEmail}
+              </p>
             </div>
           ) : (
             <div className="rounded-2xl border border-blue-500/60 bg-gradient-to-br from-blue-600/20 via-slate-900 to-indigo-600/20 p-6">
@@ -656,7 +669,10 @@ export default function Home() {
             </button>
           </div>
 
-          <button onClick={() => signOut()} className="hover:text-slate-300 transition">
+          <button
+            onClick={() => signOut()}
+            className="hover:text-slate-300 transition"
+          >
             Se déconnecter
           </button>
         </footer>
@@ -667,7 +683,8 @@ export default function Home() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget && !contactLoading) setShowContact(false);
+            if (e.target === e.currentTarget && !contactLoading)
+              setShowContact(false);
           }}
         >
           <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6">
