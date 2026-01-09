@@ -1,8 +1,7 @@
-// app/components/Home.tsx
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 type Me = {
@@ -24,11 +23,10 @@ export default function Home() {
   const [me, setMe] = useState<Me | null>(null);
   const [loadingMe, setLoadingMe] = useState(false);
 
-  // ✅ Contact modal
+  // ✅ Contact modal (on le garde pour les users connectés)
   const [showContact, setShowContact] = useState(false);
   const [contactLoading, setContactLoading] = useState(false);
 
-  // ✅ FIX TS: status parfois mal inféré => on le force en union correcte
   const authStatus = status as "loading" | "authenticated" | "unauthenticated";
 
   const userName = useMemo(
@@ -36,6 +34,7 @@ export default function Home() {
     [session]
   );
 
+  // ✅ On ne fait le refreshMe / onboarding QUE si connecté
   useEffect(() => {
     if (!session?.user?.email) return;
 
@@ -99,7 +98,6 @@ export default function Home() {
     };
   }, [session?.user?.email, router]);
 
-  // ✅ FIX TS: on se base sur authStatus
   if (authStatus === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-50">
@@ -107,12 +105,6 @@ export default function Home() {
       </div>
     );
   }
-
-  if (!session) return null;
-
-  // ✅ FIX TS: on fige des variables safe (plus de "session possibly null")
-  const userEmail = session.user?.email ?? "";
-  const userNameSafe = session.user?.name ?? null;
 
   const openInstall = () => {
     window.open(
@@ -125,24 +117,197 @@ export default function Home() {
     window.open("https://mail.google.com", "_blank");
   };
 
-  async function goCheckout() {
-    try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST" });
-      const data = await res.json().catch(() => ({}));
+  const openPlans = () => {
+    window.location.href = "/pricing";
+  };
 
-      if (!res.ok) {
-        console.error("Checkout error:", data);
-        alert(data?.error || "Erreur lors du checkout Stripe.");
-        return;
-      }
+  const openPrivacy = () => {
+    window.location.href = "/privacy";
+  };
 
-      if (data?.url) window.location.href = data.url;
-      else alert("Erreur: URL Stripe manquante.");
-    } catch (e) {
-      console.error(e);
-      alert("Erreur réseau.");
-    }
+  const openTerms = () => {
+    window.location.href = "/terms";
+  };
+
+  const goEditProfile = () => {
+    router.push("/onboarding");
+  };
+
+  // =========================
+  // ✅ CAS 1: PAS CONNECTÉ
+  // =========================
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-50">
+        <div className="mx-auto max-w-4xl px-4 py-12">
+          {/* HEADER */}
+          <header className="mb-10 flex flex-col gap-6">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                MailCoach <span className="text-blue-400">AI</span>
+              </h1>
+
+              <p className="mt-3 text-lg text-slate-300 max-w-2xl">
+                Améliore tes e-mails <strong>directement dans Gmail</strong>, en
+                1 clic.
+              </p>
+
+              <p className="mt-2 text-sm text-slate-400 max-w-2xl">
+                Une extension Chrome qui reformule, structure et rend tes
+                réponses plus professionnelles — sans perdre de temps.
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
+              >
+                🔐 Se connecter avec Google
+              </button>
+
+              <button
+                onClick={openInstall}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+              >
+                ✨ Installer l’extension
+              </button>
+
+              <button
+                onClick={openGmail}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-800 px-6 py-3 text-sm text-slate-200 hover:bg-slate-900/40 transition"
+              >
+                Ouvrir Gmail
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              ⚠️ L’extension est nécessaire pour utiliser MailCoach dans Gmail.
+            </p>
+          </header>
+
+          {/* COMMENT ÇA MARCHE */}
+          <section className="mb-10">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+              <h2 className="text-xl font-semibold mb-4">Comment ça marche</h2>
+
+              <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
+                <li className="flex gap-3">
+                  <span className="text-blue-400 font-bold">1.</span>
+                  Installe l’extension et redémarre Gmail
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-blue-400 font-bold">2.</span>
+                  Rédige ton e-mail comme d’habitude
+                </li>
+                <li className="flex gap-3">
+                  <span className="text-blue-400 font-bold">3.</span>
+                  Clique sur “Améliorer avec MailCoach”
+                </li>
+              </ol>
+            </div>
+          </section>
+
+          {/* ✅ AU LIEU DES CARTES STARTER/PRO */}
+          <section className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+              <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
+                Résultat
+              </p>
+              <h3 className="text-lg font-semibold mb-3">
+                Des réponses plus pro, sans réfléchir
+              </h3>
+
+              <ul className="text-sm text-slate-300 space-y-2">
+                <li>• Ton plus clair et plus poli</li>
+                <li>• Structure + meilleure lisibilité</li>
+                <li>• Moins de fautes et de formulations bancales</li>
+                <li>• Gain de temps énorme au quotidien</li>
+              </ul>
+
+              <div className="mt-5 flex flex-col gap-2">
+                <button
+                  onClick={() => signIn("google", { callbackUrl: "/" })}
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
+                >
+                  Commencer maintenant
+                </button>
+                <button
+                  onClick={openPlans}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+                >
+                  Voir les plans
+                </button>
+              </div>
+
+              <p className="mt-3 text-[11px] text-slate-500">
+                Tu peux tester avant de payer.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-blue-500/40 bg-gradient-to-br from-blue-600/20 via-slate-900 to-indigo-600/20 p-6">
+              <p className="text-xs uppercase tracking-wide text-slate-300/80 mb-2">
+                Exemple
+              </p>
+              <h3 className="text-lg font-semibold mb-3">Avant → Après</h3>
+
+              <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
+                <div className="text-slate-400 text-xs mb-2">Avant</div>
+                <div className="mb-4">
+                  “Salut, on peut faire ça vite ? j’ai pas trop le temps merci”
+                </div>
+
+                <div className="text-slate-400 text-xs mb-2">Après</div>
+                <div>
+                  “Bonjour, oui bien sûr. Je peux m’en occuper rapidement.
+                  Dites-moi simplement votre disponibilité et je vous confirme
+                  cela.”
+                </div>
+              </div>
+
+              <p className="mt-4 text-[11px] text-slate-300/80">
+                (Exemple indicatif — le style s’adapte à ton contexte.)
+              </p>
+            </div>
+          </section>
+
+          {/* FOOTER */}
+          <footer className="mt-14 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs text-slate-500">
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                onClick={openPrivacy}
+                className="hover:text-slate-300 transition underline underline-offset-4"
+              >
+                Politique de confidentialité
+              </button>
+
+              <button
+                onClick={openTerms}
+                className="hover:text-slate-300 transition underline underline-offset-4"
+              >
+                Conditions d’utilisation
+              </button>
+            </div>
+
+            <button
+              onClick={() => signIn("google", { callbackUrl: "/" })}
+              className="hover:text-slate-300 transition"
+            >
+              Se connecter
+            </button>
+          </footer>
+        </div>
+      </div>
+    );
   }
+
+  // =========================
+  // ✅ CAS 2: CONNECTÉ (ton code)
+  // =========================
+
+  const userEmail = session.user?.email ?? "";
+  const userNameSafe = session.user?.name ?? null;
 
   async function openPortal() {
     try {
@@ -164,23 +329,6 @@ export default function Home() {
   }
 
   const isPro = (me?.plan ?? "").toString().toLowerCase() === "pro";
-
-  const openPlans = () => {
-    window.location.href = "/pricing";
-  };
-
-  const goEditProfile = () => {
-    router.push("/onboarding");
-  };
-
-  // ✅ AJOUT: liens vers tes pages existantes
-  const openPrivacy = () => {
-    window.location.href = "/privacy";
-  };
-
-  const openTerms = () => {
-    window.location.href = "/terms";
-  };
 
   const formatPeriodEnd = (value: Me["current_period_end"]) => {
     if (value === null || value === undefined) return null;
@@ -218,7 +366,13 @@ export default function Home() {
       subStatus === "trialing" ||
       subStatus === "past_due");
 
-  const statusLabel = !isPro ? "—" : proActive ? "Actif" : subStatus ? subStatus : "—";
+  const statusLabel = !isPro
+    ? "—"
+    : proActive
+    ? "Actif"
+    : subStatus
+    ? subStatus
+    : "—";
 
   const emailsImproved = me?.emails_improved ?? null;
 
@@ -341,9 +495,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* PLAN + CARTE DROITE */}
+        {/* PLAN + CARTE DROITE (inchangé) */}
         <section className="grid gap-6 md:grid-cols-2">
-          {/* PLAN ACTUEL */}
           <div
             className={
               isPro
@@ -401,39 +554,33 @@ export default function Home() {
             )}
           </div>
 
-          {/* CARTE DROITE */}
           {isPro ? (
             <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-blue-600/10 via-slate-900 to-indigo-600/10 p-6">
               <h3 className="text-xl font-semibold mb-4">Ton activité</h3>
 
               <ul className="space-y-2 text-sm text-slate-200">
-                <li className="flex items-center gap-2">
-                  <span>
-                    E-mails améliorés :{" "}
-                    <span className="text-slate-300">
-                      {emailsImproved === null ? "—" : emailsImproved}
-                    </span>
+                <li>
+                  E-mails améliorés :{" "}
+                  <span className="text-slate-300">
+                    {emailsImproved === null ? "—" : emailsImproved}
                   </span>
                 </li>
 
-                <li className="flex items-center gap-2">
-                  <span>
-                    Accès Pro : <span className="text-slate-300">{statusLabel}</span>
-                  </span>
+                <li>
+                  Accès Pro : <span className="text-slate-300">{statusLabel}</span>
                 </li>
 
-                <li className="flex items-center gap-2">
-                  <span>
-                    Limite : <span className="text-slate-300">illimitée</span>
-                  </span>
+                <li>
+                  Limite : <span className="text-slate-300">illimitée</span>
                 </li>
 
                 {me?.cancel_at_period_end ? (
-                  <li className="flex items-center gap-2">
-                    <span>⚠️</span>
-                    <span className="text-slate-300">
-                      Renouvellement désactivé (fin à l’échéance)
-                    </span>
+                  <li className="text-slate-300">⚠️ Renouvellement désactivé</li>
+                ) : null}
+
+                {periodEndLabel ? (
+                  <li className="text-slate-400 text-xs">
+                    Période en cours jusqu’au {periodEndLabel}
                   </li>
                 ) : null}
               </ul>
@@ -578,7 +725,7 @@ export default function Home() {
               </div>
 
               <p className="text-[11px] text-slate-500">
-                (Tu peux laisser le sujet vide. On utilise ton email de connexion pour te répondre.)
+                (On utilise ton email de connexion pour te répondre.)
               </p>
             </form>
           </div>
