@@ -166,14 +166,14 @@ export default function Home() {
 
               <button
                 onClick={openGmail}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-800 px-6 py-3 text-sm text-slate-200 hover:bg-slate-900/40 transition"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
               >
                 Ouvrir Gmail
               </button>
 
               <button
                 onClick={() => signIn("google", { callbackUrl: "/" })}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-800 px-6 py-3 text-sm text-slate-200 hover:bg-slate-900/40 transition"
               >
                 Se connecter
               </button>
@@ -258,13 +258,13 @@ export default function Home() {
 
                 <div className="text-slate-400 text-xs mb-2">Après</div>
                 <div>
-                  “Bonjour,
+                  “Bonjour, <br />
 
-                  Je souhaiterais connaître vos disponibilités afin d'organiser un appel.
+                  Je souhaiterais connaître vos disponibilités afin d'organiser un appel. <br />
                   
-                  Pourriez-vous me faire part des créneaux qui vous conviennent ?
+                  Pourriez-vous me faire part des créneaux qui vous conviennent ? <br />
                   
-                  Cordialement,
+                  Cordialement,”
                 </div>
               </div>
 
