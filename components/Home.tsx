@@ -259,10 +259,13 @@ export default function Home() {
                 <div className="text-slate-400 text-xs mb-2">Après</div>
                 <div>
                   “Bonjour, <br />
+                  <br />
 
                   Je souhaiterais connaître vos disponibilités afin d'organiser un appel. <br />
+                  <br />
                   
                   Pourriez-vous me faire part des créneaux qui vous conviennent ? <br />
+                  <br />
                   
                   Cordialement,”
                 </div>
