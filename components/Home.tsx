@@ -152,16 +152,13 @@ export default function Home() {
                 1 clic.
               </p>
 
-              <p className="mt-2 text-sm text-slate-400 max-w-2xl">
-                Une extension Chrome qui reformule, structure et rend tes
-                réponses plus professionnelles, sans perdre de temps.
-              </p>
+              
             </div>
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => signIn("google", { callbackUrl: "/" })}
+                onClick={openInstall}
                 className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
               >
                 ✨ Installer l’extension
@@ -169,17 +166,18 @@ export default function Home() {
 
               <button
                 onClick={openGmail}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-              >
-                🔐 Se connecter avec Google
-              </button>
-
-              <button
-                onClick={openInstall}
                 className="inline-flex items-center justify-center rounded-xl border border-slate-800 px-6 py-3 text-sm text-slate-200 hover:bg-slate-900/40 transition"
               >
                 Ouvrir Gmail
               </button>
+
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+              >
+                Se connecter
+              </button>
+
             </div>
 
             <p className="text-xs text-slate-400">
@@ -216,15 +214,14 @@ export default function Home() {
                 Résultat
               </p>
               <h3 className="text-lg font-semibold mb-3">
-                Des réponses plus pro, sans réfléchir
+                Des réponses plus pro, sans perdre de temps
               </h3>
 
               <ul className="text-sm text-slate-300 space-y-2">
                 <li>• Ton plus clair et plus poli</li>
                 <li>• Structure + meilleure lisibilité</li>
                 <li>• Pas de fautes ni de formulations bancales</li>
-                <li>• Gain en crédibilité</li>
-                <li>• Gain de temps énorme au quotidien</li>
+                <li>• Gain en temps et en crédibilité</li>
               </ul>
 
               <div className="mt-5 flex flex-col gap-2">
@@ -263,11 +260,11 @@ export default function Home() {
                 <div>
                   “Bonjour,
 
-Je souhaiterais connaître vos disponibilités afin d'organiser un appel. Pourriez-vous me faire part des créneaux qui vous conviennent ?
-
-Cordialement,
-
-John L. - CEO MailCoach”
+                  Je souhaiterais connaître vos disponibilités afin d'organiser un appel.
+                  
+                  Pourriez-vous me faire part des créneaux qui vous conviennent ?
+                  
+                  Cordialement,
                 </div>
               </div>
 
