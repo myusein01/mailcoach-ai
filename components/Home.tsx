@@ -159,7 +159,7 @@ export default function Home() {
                 onClick={openInstall}
                 className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
               >
-                ✨ Installer l’extension
+                ✨ Ajouter à Chrome (gratuit)
               </button>
 
               <button
@@ -225,7 +225,8 @@ export default function Home() {
                 <ul className="text-sm text-slate-300 space-y-2">
                   <li>• Ton plus clair et plus poli</li> 
                   <li>• Structure + meilleure lisibilité</li> 
-                  <li>• Pas de fautes ni de formulations bancales</li> 
+                  <li>• Pas de fautes d'orthographe</li> 
+                  <li>• Pas de formulations bancales</li> 
                   <li>• Gain de temps énorme au quotidien</li>
                   <li>• Gain en crédibilité</li>
                 </ul>
@@ -465,7 +466,7 @@ export default function Home() {
               onClick={openInstall}
               className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
             >
-              ✨ Installer l’extension Gmail
+              ✨ Ajouter à Chrome (gratuit)
             </button>
 
             <button
@@ -496,7 +497,7 @@ export default function Home() {
             <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">1.</span>
-                Installe l'extension et redémarre Gmail
+                Ajoute l'extension et redémarre Gmail
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">2.</span>
