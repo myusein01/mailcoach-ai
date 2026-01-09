@@ -213,18 +213,19 @@ export default function Home() {
                 <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                   Résultat
                 </p>
+                <h3 className="text-lg font-semibold mb-3">
+                  Des réponses plus pro, sans perdre de temps
+                </h3>
               </div>
 
               {/* Milieu (centré verticalement) */}
               <div className="flex-1 flex flex-col justify-center">
-                <h3 className="text-lg font-semibold mb-3">
-                  Des réponses plus pro, sans perdre de temps
-                </h3>
+                
 
                 <ul className="text-sm text-slate-300 space-y-2">
-                  <li>• Ton plus clair et plus poli</li>
-                  <li>• Structure + meilleure lisibilité</li>
-                  <li>• Pas de fautes ni de formulations bancales</li>
+                  <li>• Ton plus clair et plus poli</li> <br />
+                  <li>• Structure + meilleure lisibilité</li> <br />
+                  <li>• Pas de fautes ni de formulations bancales</li> <br />
                   <li>• Gain en temps et en crédibilité</li>
                 </ul>
               </div>
