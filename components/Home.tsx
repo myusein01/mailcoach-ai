@@ -133,6 +133,11 @@ export default function Home() {
     router.push("/onboarding");
   };
 
+  const scrollToHowItWorks = () => {
+    const el = document.getElementById("how-it-works");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   // =========================
   // ✅ CAS 1: PAS CONNECTÉ
   // =========================
@@ -151,6 +156,32 @@ export default function Home() {
                 Améliore tes e-mails <strong>directement dans Gmail</strong>, en
                 1 clic.
               </p>
+
+              {/* ✅ CLARTÉ IMMÉDIATE */}
+              <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className="inline-flex items-center rounded-full border border-blue-500/40 bg-blue-500/10 px-3 py-1 text-[11px] font-semibold text-blue-200">
+                    Extension Chrome
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-slate-700 bg-slate-900/40 px-3 py-1 text-[11px] font-semibold text-slate-200">
+                    Fonctionne dans Gmail
+                  </span>
+                </div>
+
+                <p className="text-sm text-slate-200">
+                  <strong>MailCoach AI est une extension Chrome</strong> qui
+                  ajoute un bouton dans Gmail :{" "}
+                  <span className="text-slate-100 font-semibold">
+                    “Améliorer avec MailCoach”
+                  </span>
+                  . Tu écris ton e-mail comme d’habitude, puis tu cliques : on
+                  reformule pour que ce soit plus clair, plus pro, sans fautes.
+                </p>
+
+                <p className="mt-2 text-xs text-slate-400">
+                  👉 Aucune config compliquée. Installation en 30 secondes.
+                </p>
+              </div>
             </div>
 
             {/* CTA */}
@@ -163,10 +194,10 @@ export default function Home() {
               </button>
 
               <button
-                onClick={openGmail}
+                onClick={scrollToHowItWorks}
                 className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
               >
-                Ouvrir Gmail
+                Voir comment ça marche
               </button>
 
               <button
@@ -182,8 +213,47 @@ export default function Home() {
             </p>
           </header>
 
-          {/* COMMENT ÇA MARCHE */}
+          {/* ✅ RASSURANCE (confidentialité / simplicité) */}
           <section className="mb-10">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+              <h2 className="text-xl font-semibold mb-3">
+                Simple à installer. Clair à utiliser.
+              </h2>
+
+              <div className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
+                <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
+                  <p className="font-semibold text-slate-200 mb-1">
+                    ⚡ Zéro prise de tête
+                  </p>
+                  <p className="text-slate-300">
+                    Tu installes l’extension, tu ouvres Gmail, tu l’utilises.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
+                  <p className="font-semibold text-slate-200 mb-1">
+                    🔒 Tu gardes le contrôle
+                  </p>
+                  <p className="text-slate-300">
+                    Tu choisis quand améliorer, et tu peux modifier le texte
+                    avant d’envoyer.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
+                  <p className="font-semibold text-slate-200 mb-1">
+                    🧩 Fait pour Gmail
+                  </p>
+                  <p className="text-slate-300">
+                    Le bouton apparaît directement dans la fenêtre de rédaction.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* COMMENT ÇA MARCHE */}
+          <section className="mb-10" id="how-it-works">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
               <h2 className="text-xl font-semibold mb-4">Comment ça marche ?</h2>
 
@@ -201,14 +271,38 @@ export default function Home() {
                   Clique sur “Améliorer avec MailCoach”
                 </li>
               </ol>
+
+              <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-4 text-sm text-slate-300">
+                <span className="text-slate-200 font-semibold">
+                  Où est le bouton ?
+                </span>{" "}
+                Dans Gmail, quand tu rédiges un e-mail, tu verras un bouton{" "}
+                <span className="text-slate-100 font-semibold">
+                  “Améliorer avec MailCoach”
+                </span>{" "}
+                à côté des actions d’envoi.
+              </div>
+
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={openInstall}
+                  className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
+                >
+                  Installer l’extension
+                </button>
+                <button
+                  onClick={openGmail}
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
+                >
+                  Ouvrir Gmail
+                </button>
+              </div>
             </div>
           </section>
 
           {/* ✅ AU LIEU DES CARTES STARTER/PRO */}
           <section className="grid gap-6 md:grid-cols-2">
-            {/* ✅ MODIF UNIQUEMENT ICI: meilleure répartition verticale */}
             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 flex flex-col">
-              {/* Haut */}
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-400 mb-2">
                   Résultat
@@ -218,21 +312,17 @@ export default function Home() {
                 </h3>
               </div>
 
-              {/* Milieu (centré verticalement) */}
               <div className="flex-1 flex flex-col justify-center">
-                
-
                 <ul className="text-sm text-slate-300 space-y-2">
-                  <li>• Ton plus clair et plus poli</li> 
-                  <li>• Structure + meilleure lisibilité</li> 
-                  <li>• Pas de fautes d'orthographe</li> 
-                  <li>• Pas de formulations bancales</li> 
+                  <li>• Ton plus clair et plus poli</li>
+                  <li>• Structure + meilleure lisibilité</li>
+                  <li>• Pas de fautes d&apos;orthographe</li>
+                  <li>• Pas de formulations bancales</li>
                   <li>• Gain de temps énorme au quotidien</li>
                   <li>• Gain en crédibilité</li>
                 </ul>
               </div>
 
-              {/* Bas (collé) */}
               <div className="mt-6">
                 <div className="flex flex-col gap-2">
                   <button
@@ -242,7 +332,7 @@ export default function Home() {
                     Commencer maintenant
                   </button>
                   <button
-                    onClick={() => signIn("google", { callbackUrl: "/" })}
+                    onClick={openPlans}
                     className="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
                   >
                     Voir les plans
@@ -259,7 +349,9 @@ export default function Home() {
               <p className="text-xs uppercase tracking-wide text-slate-300/80 mb-2">
                 Exemple
               </p>
-              <h3 className="text-lg font-semibold mb-3">Avant → Après (en 1 clic)</h3>
+              <h3 className="text-lg font-semibold mb-3">
+                Avant → Après (en 1 clic)
+              </h3>
 
               <div className="rounded-xl border border-slate-800 bg-slate-950/40 p-4 text-sm text-slate-300">
                 <div className="text-slate-400 text-xs mb-2">Avant</div>
@@ -272,7 +364,7 @@ export default function Home() {
                 <div>
                   “Bonjour, <br />
                   <br />
-                  Je souhaiterais connaître vos disponibilités afin d'organiser
+                  Je souhaiterais connaître vos disponibilités afin d&apos;organiser
                   un appel. <br />
                   <br />
                   Pourriez-vous me faire part des créneaux qui vous conviennent ?{" "}
@@ -458,6 +550,18 @@ export default function Home() {
               Salut {userName}. Améliore tes e-mails{" "}
               <strong>directement dans Gmail</strong>, en 1 clic.
             </p>
+
+            {/* ✅ RAPPEL CLARTÉ (connecté aussi) */}
+            <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
+              <p className="text-sm text-slate-200">
+                <strong>Rappel :</strong> MailCoach AI est une{" "}
+                <strong>extension Chrome</strong>. Dans Gmail, tu verras un
+                bouton <span className="text-slate-100 font-semibold">
+                  “Améliorer avec MailCoach”
+                </span>{" "}
+                pendant que tu rédiges.
+              </p>
+            </div>
           </div>
 
           {/* CTA PRINCIPAL */}
@@ -497,11 +601,11 @@ export default function Home() {
             <ol className="grid gap-4 md:grid-cols-3 text-sm text-slate-300">
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">1.</span>
-                Ajoute l'extension et redémarre Gmail
+                Ajoute l&apos;extension et redémarre Gmail
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">2.</span>
-                Rédige ton e-mail comme d'habitude
+                Rédige ton e-mail comme d&apos;habitude
               </li>
               <li className="flex gap-3">
                 <span className="text-blue-400 font-bold">3.</span>
