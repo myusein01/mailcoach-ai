@@ -216,15 +216,14 @@ export default function Home() {
             <div className="grid gap-6">
 
                               {/* CTA */}
-              <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={openInstall}
-                  className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
-                >
-                  ✨ Ajouter à Chrome (gratuit)
-                </button>
-              </div>
-              
+                <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={openInstall}
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
+                  >
+                    ✨ Ajouter à Chrome (gratuit)
+                  </button>
+                </div>
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
                 <div className="mt-2 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
