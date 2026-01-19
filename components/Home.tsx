@@ -51,7 +51,7 @@ export default function Home() {
     socialProof: "/images/social-proof.png",
   };
 
-  const HERO_LOOM_EMBED_URL = "https://www.loom.com/embed/dd58221113c948e5a3ce114d4e5e2b06";
+  const HERO_LOOM_EMBED_URL = "https://www.loom.com/embed/dd58221113c948e5a3ce114d4e5e2b06?autoplay=1&muted=1";;
 
   // ✅ On ne fait le refreshMe / onboarding QUE si connecté
   useEffect(() => {
