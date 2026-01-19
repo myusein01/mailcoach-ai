@@ -43,7 +43,7 @@ export default function Home() {
     heroDemo: "/images/hero-demo.png",
 
     // ✅ Petites icônes (SVG/PNG) pour les étapes
-    step1Icon: "/images/step-install.svg",
+    step1Icon: "/images/step-install.png",
     step2Icon: "/images/step-write.svg",
     step3Icon: "/images/step-improve.svg",
 
