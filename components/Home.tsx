@@ -227,13 +227,14 @@ export default function Home() {
                   </div>
 
                   <p className="text-sm text-slate-200">
-                    <strong>MailCoach AI est une extension Chrome</strong> qui
-                    ajoute un bouton dans Gmail :{" "}
+                    <strong>Tu passes trop de temps</strong> à trouver le bon ton, être clair, et éviter
+                    les fautes ? <strong>MailCoach AI</strong> est une extension Chrome qui ajoute un bouton
+                    dans Gmail :{" "}
                     <span className="text-slate-100 font-semibold">
                       “Améliorer avec MailCoach”
                     </span>
-                    . Tu écris ton e-mail comme d’habitude, puis tu cliques : on
-                    reformule pour que ce soit plus clair, plus pro, sans fautes.
+                    . Tu écris ton e-mail comme d’habitude, puis tu cliques : on reformule pour que ce
+                    soit <strong>plus clair, plus pro, et sans fautes</strong>.
                   </p>
 
                   <p className="mt-2 text-xs text-slate-400">
