@@ -444,14 +444,9 @@ export default function Home() {
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
               <h2 className="text-xl font-semibold mb-4">Comment ça marche ?</h2>
 
+              {/* ✅ Cards sans visuels */}
               <ol className="grid gap-6 md:grid-cols-3 text-sm text-slate-300">
                 <li className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
-                  <img
-                    src={LANDING_IMAGES.step1Icon}
-                    alt="Installer l’extension"
-                    className="h-10 w-10 mb-3"
-                    loading="lazy"
-                  />
                   <div className="flex gap-3">
                     <span className="text-blue-400 font-bold">1.</span>
                     <span>Ajoute l’extension et redémarre Gmail</span>
@@ -459,12 +454,6 @@ export default function Home() {
                 </li>
 
                 <li className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
-                  <img
-                    src={LANDING_IMAGES.step2Icon}
-                    alt="Écrire un e-mail"
-                    className="h-10 w-10 mb-3"
-                    loading="lazy"
-                  />
                   <div className="flex gap-3">
                     <span className="text-blue-400 font-bold">2.</span>
                     <span>Rédige ton e-mail comme d’habitude</span>
@@ -472,12 +461,6 @@ export default function Home() {
                 </li>
 
                 <li className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
-                  <img
-                    src={LANDING_IMAGES.step3Icon}
-                    alt="Améliorer avec MailCoach"
-                    className="h-10 w-10 mb-3"
-                    loading="lazy"
-                  />
                   <div className="flex gap-3">
                     <span className="text-blue-400 font-bold">3.</span>
                     <span>Clique sur “Améliorer avec MailCoach”</span>
@@ -485,10 +468,9 @@ export default function Home() {
                 </li>
               </ol>
 
+              {/* ✅ Garde "Où est le bouton ?" */}
               <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-4 text-sm text-slate-300">
-                <span className="text-slate-200 font-semibold">
-                  Où est le bouton ?
-                </span>{" "}
+                <span className="text-slate-200 font-semibold">Où est le bouton ?</span>{" "}
                 Dans Gmail, quand tu rédiges un e-mail, tu verras un bouton{" "}
                 <span className="text-slate-100 font-semibold">
                   “Améliorer avec MailCoach”
@@ -496,6 +478,7 @@ export default function Home() {
                 à côté des actions d’envoi.
               </div>
 
+              {/* ✅ Garde "Installer l'extension" */}
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={openInstall}
@@ -512,6 +495,7 @@ export default function Home() {
               </div>
             </div>
           </section>
+
 
           {/* ✅ FINAL CTA */}
           <section className="mb-10">
