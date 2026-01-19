@@ -276,10 +276,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <p className="mt-3 text-[11px] text-slate-400">
-                  Astuce : mets ici une capture/GIF qui montre le bouton dans Gmail
-                  + un avant/après.
-                </p>
+                
               </div>
             </div>
           </header>
