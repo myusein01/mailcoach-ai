@@ -258,7 +258,7 @@ export default function Home() {
                     </p>
 
                     <p>
-                      On reformule automatiquement pour un résultat{" "}
+                      L’intelligence artificelle reformule automatiquement pour un résultat{" "}
                       <strong className="text-slate-100">
                         plus clair, plus pro, sans fautes
                       </strong>.
