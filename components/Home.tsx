@@ -215,28 +215,27 @@ export default function Home() {
             {/* ✅ HERO: texte + vidéo en grand en dessous */}
             <div className="grid gap-6">
 
-                              {/* CTA */}
-                <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={openInstall}
-                    className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
-                  >
-                    ✨ Ajouter à Chrome (gratuit)
-                  </button>
-                </div>
+                {/* CTA + note */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={openInstall}
+                      className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
+                    >
+                      ✨ Ajouter à Chrome (gratuit)
+                    </button>
+                  </div>
 
-                {/* ✅ Remplace l'emoji ⚠️ */}
-                <p className="mt-3 text-xs text-slate-400 flex items-start gap-2">
-                  <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
-                    aria-hidden="true"
-                  >
-                    i
-                  </span>
-                  <span>
-                    L’extension est nécessaire pour utiliser MailCoach dans Gmail.
-                  </span>
-                </p>
+                  <p className="text-xs text-slate-400 flex items-start gap-2">
+                    <span
+                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
+                      aria-hidden="true"
+                    >
+                      i
+                    </span>
+                    <span>L’extension est nécessaire pour utiliser MailCoach dans Gmail.</span>
+                  </p>
+                </div>
 
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
