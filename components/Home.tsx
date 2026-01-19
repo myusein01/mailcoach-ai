@@ -51,7 +51,21 @@ export default function Home() {
     socialProof: "/images/social-proof.png",
   };
 
-  const HERO_LOOM_EMBED_URL = "https://www.loom.com/embed/dd58221113c948e5a3ce114d4e5e2b06?autoplay=1&muted=1";;
+  const HERO_LOOM_EMBED_URL =
+    "https://www.loom.com/embed/dd58221113c948e5a3ce114d4e5e2b06?autoplay=1&muted=1";
+
+  const CHROME_WEBSTORE_URL =
+    "https://chrome.google.com/webstore/detail/mailcoach-ai-for-gmail/ejddkpobljmcmoimcmmacikkjcecnfhk";
+
+  const SOCIAL_PROOF = {
+    rating: 5.0,
+    reviewsCount: 1,
+    review: {
+      name: "Squeem",
+      dateLabel: "2 janv. 2026",
+      text: "C'est une application qui est pratique et qui fait gagner du temps",
+    },
+  };
 
   // ✅ On ne fait le refreshMe / onboarding QUE si connecté
   useEffect(() => {
@@ -203,8 +217,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ✅ HERO: texte + visuel (conseil UI/UX) */}
-            <div className="grid gap-6 md:grid-cols-2 items-start">
+            {/* ✅ HERO: texte + vidéo en grand en dessous */}
+            <div className="grid gap-6">
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
                 <div className="mt-1 rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
@@ -240,16 +254,9 @@ export default function Home() {
                   >
                     ✨ Ajouter à Chrome (gratuit)
                   </button>
-
-                  <button
-                    onClick={scrollToHowItWorks}
-                    className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-                  >
-                    Voir comment ça marche
-                  </button>
                 </div>
 
-                {/* ✅ Remplace l'emoji ⚠️ (conseil UI/UX) */}
+                {/* ✅ Remplace l'emoji ⚠️ */}
                 <p className="mt-3 text-xs text-slate-400 flex items-start gap-2">
                   <span
                     className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
@@ -263,10 +270,13 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* ✅ VISUEL HERO (à remplacer via LANDING_IMAGES.heroDemo) */}
+              {/* ✅ Vidéo en grand sous le texte */}
               <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-3">
                 <div className="rounded-xl border border-slate-800 bg-slate-950/30 overflow-hidden">
-                  <div className="relative w-full" style={{ paddingBottom: "53.73134328358209%" }}>
+                  <div
+                    className="relative w-full"
+                    style={{ paddingBottom: "53.73134328358209%" }}
+                  >
                     <iframe
                       src={HERO_LOOM_EMBED_URL}
                       frameBorder="0"
@@ -275,45 +285,11 @@ export default function Home() {
                     />
                   </div>
                 </div>
-
-                
               </div>
             </div>
           </header>
 
-          {/* ✅ SOCIAL PROOF (conseil UI/UX) */}
-          <section className="mb-10">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-              <h2 className="text-xl font-semibold mb-3">
-                Déjà utilisé pour écrire plus vite (et mieux)
-              </h2>
-              <p className="text-sm text-slate-300 mb-4 max-w-2xl">
-                Ajoute ici des avis, une note Chrome Web Store, ou des logos.
-                Ça rassure immédiatement.
-              </p>
-
-              <div className="rounded-xl border border-slate-800 bg-slate-950/30 p-3 overflow-hidden">
-                <img
-                  src={LANDING_IMAGES.socialProof}
-                  alt="Preuves sociales (avis, notes, logos)"
-                  className="w-full h-auto block"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                {/* ✅ Un seul CTA prioritaire ici (conseil UI/UX) */}
-                <button
-                  onClick={openInstall}
-                  className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
-                >
-                  Installer l’extension
-                </button>
-              </div>
-            </div>
-          </section>
-
-          {/* ✅ RÉSULTAT + EXEMPLE (remonté AVANT “Comment ça marche” — conseil UI/UX) */}
+          {/* ✅ RÉSULTAT + EXEMPLE */}
           <section className="grid gap-6 md:grid-cols-2 mb-10">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 flex flex-col">
               <div>
@@ -338,24 +314,14 @@ export default function Home() {
 
               <div className="mt-6">
                 <div className="flex flex-col gap-2">
-                  {/* ✅ CTA unique prioritaire (conseil UI/UX) */}
                   <button
                     onClick={openInstall}
                     className="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
                   >
                     Commencer maintenant
                   </button>
-
-                  {/* ✅ “Voir les plans” gardé mais dépriorisé (conseil UI/UX) */}
-                  <button
-                    onClick={openPlans}
-                    className="inline-flex w-full items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-5 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-                  >
-                    Voir les plans
-                  </button>
                 </div>
 
-                {/* ✅ Clarification “5 essais” (conseil UI/UX) */}
                 <p className="mt-3 text-[11px] text-slate-500">
                   5 améliorations gratuites (5 e-mails) pour tester.
                 </p>
@@ -397,12 +363,86 @@ export default function Home() {
             </div>
           </section>
 
-          {/* COMMENT ÇA MARCHE (descendu après la valeur — conseil UI/UX) */}
+          {/* ✅ AVIS (Google / Chrome Web Store) — déplacé sous Résultat + Avant/Après */}
+          <section className="mb-10">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold mb-2">
+                    5,0 ★ sur le Chrome Web Store
+                  </h2>
+
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-slate-300">
+                    <div className="flex items-center gap-1" aria-label="Note 5 étoiles">
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                    </div>
+
+                    <span className="text-slate-200 font-semibold">
+                      {SOCIAL_PROOF.rating.toFixed(1)} / 5
+                    </span>
+
+                    <span className="text-slate-500">
+                      • {SOCIAL_PROOF.reviewsCount} avis
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => window.open(CHROME_WEBSTORE_URL, "_blank")}
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-2 text-xs font-medium text-slate-200 hover:bg-slate-900/70 transition"
+                >
+                  Voir l’avis sur le Web Store
+                </button>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-950/30 p-5">
+                <div className="flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-sm font-semibold text-slate-200">
+                    {SOCIAL_PROOF.review.name
+                      .split(" ")
+                      .slice(0, 2)
+                      .map((w) => w[0]?.toUpperCase())
+                      .join("")}
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p className="text-sm font-semibold text-slate-100">
+                        {SOCIAL_PROOF.review.name}
+                      </p>
+                      <span className="text-xs text-slate-500">•</span>
+                      <p className="text-xs text-slate-400">{SOCIAL_PROOF.review.dateLabel}</p>
+                    </div>
+
+                    <p className="mt-2 text-sm text-slate-200 leading-relaxed">
+                      “{SOCIAL_PROOF.review.text}”
+                    </p>
+
+                    <div className="mt-3 flex items-center gap-1 text-xs text-slate-400">
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="ml-2">Avis (Chrome Web Store)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ✅ Pas de CTA "Installer l'extension" ici (comme demandé) */}
+            </div>
+          </section>
+
+          {/* COMMENT ÇA MARCHE */}
           <section className="mb-10" id="how-it-works">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
               <h2 className="text-xl font-semibold mb-4">Comment ça marche ?</h2>
 
-              {/* ✅ Ajout de visuels au-dessus de chaque step (conseil UI/UX) */}
               <ol className="grid gap-6 md:grid-cols-3 text-sm text-slate-300">
                 <li className="rounded-xl border border-slate-800 bg-slate-950/30 p-4">
                   <img
@@ -472,7 +512,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ✅ FINAL CTA (nouvelle section — conseil UI/UX) */}
+          {/* ✅ FINAL CTA */}
           <section className="mb-10">
             <div className="rounded-2xl border border-blue-500/40 bg-gradient-to-br from-blue-600/20 via-slate-900 to-indigo-600/20 p-6">
               <h2 className="text-2xl font-semibold mb-2">
@@ -521,7 +561,6 @@ export default function Home() {
                 Conditions d’utilisation
               </button>
 
-              {/* ✅ Mentions légales (conseil marketer) */}
               <button
                 onClick={openLegal}
                 className="hover:text-slate-300 transition underline underline-offset-4"
@@ -529,7 +568,6 @@ export default function Home() {
                 Mentions légales
               </button>
 
-              {/* ✅ Support visible (conseil UI/UX) */}
               <button
                 onClick={() => window.open("mailto:support@mailcoach.ai", "_blank")}
                 className="hover:text-slate-300 transition underline underline-offset-4"
@@ -538,7 +576,6 @@ export default function Home() {
               </button>
             </div>
 
-            {/* ✅ Login déjà en top-right, mais on le garde aussi ici */}
             <button
               onClick={() => signIn("google", { callbackUrl: "/" })}
               className="hover:text-slate-300 transition"
@@ -838,7 +875,8 @@ export default function Home() {
                 </li>
 
                 <li>
-                  Accès Pro : <span className="text-slate-300">{statusLabel}</span>
+                  Accès Pro :{" "}
+                  <span className="text-slate-300">{statusLabel}</span>
                 </li>
 
                 <li>
@@ -923,7 +961,6 @@ export default function Home() {
               Conditions d’utilisation
             </button>
 
-            {/* ✅ Mentions légales (conseil marketer) */}
             <button
               onClick={openLegal}
               className="hover:text-slate-300 transition underline underline-offset-4"
@@ -932,7 +969,10 @@ export default function Home() {
             </button>
           </div>
 
-          <button onClick={() => signOut()} className="hover:text-slate-300 transition">
+          <button
+            onClick={() => signOut()}
+            className="hover:text-slate-300 transition"
+          >
             Se déconnecter
           </button>
         </footer>
