@@ -22,10 +22,10 @@ export default function LegalPage() {
             <br />
             Contact :{" "}
             <a
-              href="mailto:support@mailcoach.ai"
+              href="mailto:support@mailcoach-ai.com"
               className="underline hover:text-slate-200"
             >
-              support@mailcoach.ai
+              support@mailcoach-ai.com
             </a>
           </p>
         </section>

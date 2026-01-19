@@ -72,7 +72,7 @@ export default function Home() {
     if (!session?.user?.email) return;
 
     let mounted = true;
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     const refreshMe = async () => {
       setLoadingMe(true);
