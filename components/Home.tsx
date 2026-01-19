@@ -196,7 +196,7 @@ export default function Home() {
                 <p className="mt-3 text-lg text-slate-300 max-w-2xl">
                   Rends tes e-mails{" "}
                   <strong>plus clairs, plus pros et sans fautes</strong>{" "}
-                  <strong>directement dans Gmail</strong>, en 1 clic.
+                  <strong>directement dans Gmail</strong>, en <strong>1 clic</strong>.
                 </p>
               </div>
 
@@ -243,7 +243,7 @@ export default function Home() {
                   </div>
 
                   <p className="mt-2 text-xs text-slate-400">
-                    👉 Aucune config compliquée. Installation en 30 secondes.
+                    👉 Aucune configuration nécessaire. Installation en 30 secondes.
                   </p>
                 </div>
 
@@ -387,7 +387,7 @@ export default function Home() {
                     </span>
 
                     <span className="text-slate-500">
-                      • {SOCIAL_PROOF.reviewsCount} avis
+                      • avis
                     </span>
                   </div>
                 </div>
