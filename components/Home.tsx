@@ -214,6 +214,17 @@ export default function Home() {
 
             {/* ✅ HERO: texte + vidéo en grand en dessous */}
             <div className="grid gap-6">
+
+                              {/* CTA */}
+              <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={openInstall}
+                  className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
+                >
+                  ✨ Ajouter à Chrome (gratuit)
+                </button>
+              </div>
+              
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
                 <div className="mt-2 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
@@ -262,15 +273,7 @@ export default function Home() {
                 </div>
 
 
-                {/* CTA */}
-                <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={openInstall}
-                    className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
-                  >
-                    ✨ Ajouter à Chrome (gratuit)
-                  </button>
-                </div>
+
 
                 {/* ✅ Remplace l'emoji ⚠️ */}
                 <p className="mt-3 text-xs text-slate-400 flex items-start gap-2">
