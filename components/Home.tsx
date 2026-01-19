@@ -508,7 +508,7 @@ export default function Home() {
               </button>
 
               <button
-                onClick={() => window.open("mailto:support@mailcoach.ai", "_blank")}
+                onClick={() => setShowContact(true)}
                 className="hover:text-slate-300 transition underline underline-offset-4"
               >
                 Support
