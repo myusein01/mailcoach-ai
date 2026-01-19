@@ -466,10 +466,7 @@ export default function Home() {
               <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-4 text-sm text-slate-300">
                 <span className="text-slate-200 font-semibold">Où est le bouton ?</span>{" "}
                 Dans Gmail, quand tu rédiges un e-mail, tu verras le bouton “Améliorer avec MailCoach” à côté des actions d’envoi, une fois l’extension ajoutée à Chrome.{" "}
-                <span className="text-slate-100 font-semibold">
-                  “Améliorer avec MailCoach”
-                </span>{" "}
-                à côté des actions d’envoi.
+
               </div>
 
               {/* ✅ Garde "Installer l'extension" */}
