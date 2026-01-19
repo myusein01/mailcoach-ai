@@ -196,7 +196,7 @@ export default function Home() {
                 <p className="mt-3 text-lg text-slate-300 max-w-2xl">
                   Rends tes e-mails{" "}
                   <strong>plus clairs, plus pros et sans fautes</strong>{" "}
-                  <strong>directement dans Gmail</strong>, en <strong>1 clic</strong>.
+                  <strong>dans Gmail</strong>, en <strong>1 clic</strong>.
                 </p>
               </div>
 
@@ -224,6 +224,20 @@ export default function Home() {
                     ✨ Ajouter à Chrome (gratuit)
                   </button>
                 </div>
+
+                {/* ✅ Remplace l'emoji ⚠️ */}
+                <p className="mt-3 text-xs text-slate-400 flex items-start gap-2">
+                  <span
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
+                    aria-hidden="true"
+                  >
+                    i
+                  </span>
+                  <span>
+                    L’extension est nécessaire pour utiliser MailCoach dans Gmail.
+                  </span>
+                </p>
+
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
                 <div className="mt-2 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
@@ -271,21 +285,6 @@ export default function Home() {
                   </p>
                 </div>
 
-
-
-
-                {/* ✅ Remplace l'emoji ⚠️ */}
-                <p className="mt-3 text-xs text-slate-400 flex items-start gap-2">
-                  <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
-                    aria-hidden="true"
-                  >
-                    i
-                  </span>
-                  <span>
-                    L’extension est nécessaire pour utiliser MailCoach dans Gmail.
-                  </span>
-                </p>
               </div>
 
               {/* ✅ Vidéo en grand sous le texte */}
