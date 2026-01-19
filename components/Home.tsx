@@ -51,6 +51,8 @@ export default function Home() {
     socialProof: "/images/social-proof.png",
   };
 
+  const HERO_LOOM_EMBED_URL = "https://www.loom.com/embed/dd58221113c948e5a3ce114d4e5e2b06";
+
   // ✅ On ne fait le refreshMe / onboarding QUE si connecté
   useEffect(() => {
     if (!session?.user?.email) return;
@@ -264,13 +266,16 @@ export default function Home() {
               {/* ✅ VISUEL HERO (à remplacer via LANDING_IMAGES.heroDemo) */}
               <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-3">
                 <div className="rounded-xl border border-slate-800 bg-slate-950/30 overflow-hidden">
-                  <img
-                    src={LANDING_IMAGES.heroDemo}
-                    alt="Démonstration de MailCoach AI dans Gmail"
-                    className="w-full h-auto block"
-                    loading="lazy"
-                  />
+                  <div className="relative w-full" style={{ paddingBottom: "53.73134328358209%" }}>
+                    <iframe
+                      src={HERO_LOOM_EMBED_URL}
+                      frameBorder="0"
+                      allowFullScreen
+                      className="absolute top-0 left-0 w-full h-full"
+                    />
+                  </div>
                 </div>
+
                 <p className="mt-3 text-[11px] text-slate-400">
                   Astuce : mets ici une capture/GIF qui montre le bouton dans Gmail
                   + un avant/après.
