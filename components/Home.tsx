@@ -238,7 +238,8 @@ export default function Home() {
                         “Améliorer avec MailCoach”
                       </span>
                       . Tu écris comme d’habitude, puis tu cliques : on reformule pour un résultat{" "}
-                      <strong>plus clair, plus pro, sans fautes</strong>.
+                      <strong>plus clair, plus pro, sans fautes</strong>. <br />
+                      
                     </p>
                   </div>
 
