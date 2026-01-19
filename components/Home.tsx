@@ -508,7 +508,7 @@ export default function Home() {
               </button>
 
               <button
-                onClick={() => setShowContact(true)}
+                onClick={() => signIn("google", { callbackUrl: "/" })}
                 className="hover:text-slate-300 transition underline underline-offset-4"
               >
                 Support
