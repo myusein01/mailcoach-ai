@@ -319,7 +319,7 @@ export default function Home() {
                     onClick={openInstall}
                     className="inline-flex w-full items-center justify-center rounded-xl bg-blue-500 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
                   >
-                    Commencer maintenant
+                    Ajouter à Chrome (gratuit)
                   </button>
                 </div>
 
@@ -392,12 +392,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => window.open(CHROME_WEBSTORE_URL, "_blank")}
-                  className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-4 py-2 text-xs font-medium text-slate-200 hover:bg-slate-900/70 transition"
-                >
-                  Voir l’avis sur le Web Store
-                </button>
               </div>
 
               <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-950/30 p-5">
@@ -471,7 +465,7 @@ export default function Home() {
               {/* ✅ Garde "Où est le bouton ?" */}
               <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-4 text-sm text-slate-300">
                 <span className="text-slate-200 font-semibold">Où est le bouton ?</span>{" "}
-                Dans Gmail, quand tu rédiges un e-mail, tu verras un bouton{" "}
+                Dans Gmail, quand tu rédiges un e-mail, tu verras le bouton “Améliorer avec MailCoach” à côté des actions d’envoi, une fois l’extension ajoutée à Chrome.{" "}
                 <span className="text-slate-100 font-semibold">
                   “Améliorer avec MailCoach”
                 </span>{" "}
@@ -484,50 +478,13 @@ export default function Home() {
                   onClick={openInstall}
                   className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
                 >
-                  Installer l’extension
+                  Ajouter à Chrome (gratuit)
                 </button>
-                <button
-                  onClick={openGmail}
-                  className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-                >
-                  Ouvrir Gmail
-                </button>
+              
               </div>
             </div>
           </section>
 
-
-          {/* ✅ FINAL CTA */}
-          <section className="mb-10">
-            <div className="rounded-2xl border border-blue-500/40 bg-gradient-to-br from-blue-600/20 via-slate-900 to-indigo-600/20 p-6">
-              <h2 className="text-2xl font-semibold mb-2">
-                Écris mieux en 1 clic, directement dans Gmail
-              </h2>
-              <p className="text-sm text-slate-300 mb-5 max-w-2xl">
-                Installe l’extension, rédige comme d’habitude, puis clique sur
-                “Améliorer avec MailCoach”.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={openInstall}
-                  className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-500/90 transition"
-                >
-                  ✨ Ajouter à Chrome (gratuit)
-                </button>
-                <button
-                  onClick={openPlans}
-                  className="inline-flex items-center justify-center rounded-xl border border-slate-700 bg-slate-900/40 px-6 py-3 text-sm font-medium text-slate-200 hover:bg-slate-900/70 transition"
-                >
-                  Voir les plans
-                </button>
-              </div>
-
-              <p className="mt-3 text-[11px] text-slate-300/80">
-                5 améliorations gratuites (5 e-mails) pour tester.
-              </p>
-            </div>
-          </section>
 
           {/* FOOTER */}
           <footer className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs text-slate-500">
@@ -561,12 +518,7 @@ export default function Home() {
               </button>
             </div>
 
-            <button
-              onClick={() => signIn("google", { callbackUrl: "/" })}
-              className="hover:text-slate-300 transition"
-            >
-              Se connecter
-            </button>
+            
           </footer>
         </div>
       </div>
