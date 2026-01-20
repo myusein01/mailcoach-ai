@@ -216,8 +216,7 @@ export default function Home() {
                     <span className="text-slate-200 font-semibold">
                       {SOCIAL_PROOF.rating.toFixed(1)}
                     </span>
-                    <span className="text-slate-500">•</span>
-                    <span className="text-slate-300">{SOCIAL_PROOF.reviewsCount} avis</span>
+                    
                   </button>
                 </div>
 
