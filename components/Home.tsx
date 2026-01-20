@@ -254,7 +254,7 @@ export default function Home() {
 
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
-                <div className="mt-2 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                <div className="mt-0 rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
                   {/* Badges */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="inline-flex items-center rounded-full border border-blue-500/40 bg-blue-500/10 px-3 py-1 text-[11px] font-semibold text-blue-200">
