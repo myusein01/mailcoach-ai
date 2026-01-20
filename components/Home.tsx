@@ -176,6 +176,11 @@ export default function Home() {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const scrollToReviews = () => {
+    const el = document.getElementById("reviews");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   // =========================
   // ✅ CAS 1: PAS CONNECTÉ
   // =========================
@@ -188,9 +193,33 @@ export default function Home() {
             {/* ✅ Top-right secondary actions (conseil UI/UX) */}
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-                  MailCoach <span className="text-blue-400">AI</span>
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                    MailCoach <span className="text-blue-400">AI</span>
+                  </h1>
+
+                  {/* ✅ Note en haut + ancre vers les avis */}
+                  <button
+                    type="button"
+                    onClick={scrollToReviews}
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/30 px-3 py-1 text-xs text-slate-200 hover:bg-slate-900/50 transition"
+                    aria-label="Voir les avis"
+                    title="Voir les avis"
+                  >
+                    <span className="flex items-center gap-0.5" aria-hidden="true">
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                      <span className="text-yellow-300">★</span>
+                    </span>
+                    <span className="text-slate-200 font-semibold">
+                      {SOCIAL_PROOF.rating.toFixed(1)}
+                    </span>
+                    <span className="text-slate-500">•</span>
+                    <span className="text-slate-300">{SOCIAL_PROOF.reviewsCount} avis</span>
+                  </button>
+                </div>
 
                 {/* ✅ Headline un peu plus spécifique (conseil UI/UX) */}
                 <p className="mt-3 text-lg text-slate-300 max-w-2xl">
@@ -201,8 +230,6 @@ export default function Home() {
               </div>
 
               <div className="flex items-center gap-2">
-                
-
                 <button
                   onClick={() => signIn("google", { callbackUrl: "/" })}
                   className="inline-flex items-center justify-center rounded-xl border border-slate-800 px-4 py-2 text-xs text-slate-200 hover:bg-slate-900/40 transition"
@@ -214,28 +241,17 @@ export default function Home() {
 
             {/* ✅ HERO: texte + vidéo en grand en dessous */}
             <div className="grid gap-6">
-
-                {/* CTA + note */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={openInstall}
-                      className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
-                    >
-                      ✨ Ajouter à Chrome (gratuit)
-                    </button>
-                  </div>
-
-                  <p className="text-xs text-slate-400 flex items-start gap-2">
-                    <span
-                      className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
-                      aria-hidden="true"
-                    >
-                      i
-                    </span>
-                    <span>L’extension est nécessaire pour utiliser MailCoach dans Gmail.</span>
-                  </p>
+              {/* CTA + note */}
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={openInstall}
+                    className="inline-flex items-center justify-center rounded-xl bg-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg hover:bg-blue-500/90 transition"
+                  >
+                    ✨ Ajouter à Chrome (gratuit)
+                  </button>
                 </div>
+              </div>
 
               <div>
                 {/* ✅ CLARTÉ IMMÉDIATE */}
@@ -283,22 +299,28 @@ export default function Home() {
                     👉 Aucune configuration nécessaire. Installation en 30 secondes.
                   </p>
                 </div>
-
               </div>
 
               {/* ✅ Vidéo en grand sous le texte */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-950/30 overflow-hidden">
-                  <div
-                    className="relative w-full"
-                    style={{ paddingBottom: "53.73134328358209%" }}
-                  >
-                    <iframe
-                      src={HERO_LOOM_EMBED_URL}
-                      frameBorder="0"
-                      allowFullScreen
-                      className="absolute top-0 left-0 w-full h-full"
-                    />
+              <div>
+                {/* ✅ Titre au-dessus de la vidéo */}
+                <h3 className="text-sm font-semibold text-slate-100 mb-2">
+                  Découvre comment MailCoach AI fonctionne
+                </h3>
+
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-3">
+                  <div className="rounded-xl border border-slate-800 bg-slate-950/30 overflow-hidden">
+                    <div
+                      className="relative w-full"
+                      style={{ paddingBottom: "53.73134328358209%" }}
+                    >
+                      <iframe
+                        src={HERO_LOOM_EMBED_URL}
+                        frameBorder="0"
+                        allowFullScreen
+                        className="absolute top-0 left-0 w-full h-full"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -380,7 +402,7 @@ export default function Home() {
           </section>
 
           {/* ✅ AVIS (Google / Chrome Web Store) — déplacé sous Résultat + Avant/Après */}
-          <section className="mb-10">
+          <section className="mb-10" id="reviews">
             <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
@@ -401,12 +423,9 @@ export default function Home() {
                       {SOCIAL_PROOF.rating.toFixed(1)} / 5
                     </span>
 
-                    <span className="text-slate-500">
-                      • avis
-                    </span>
+                    <span className="text-slate-500">• avis</span>
                   </div>
                 </div>
-
               </div>
 
               <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-950/30 p-5">
@@ -481,7 +500,6 @@ export default function Home() {
               <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/30 p-4 text-sm text-slate-300">
                 <span className="text-slate-200 font-semibold">Où est le bouton ?</span>{" "}
                 Dans Gmail, quand tu rédiges un e-mail, tu verras le bouton “Améliorer avec MailCoach” à côté des actions d’envoi, une fois l’extension ajoutée à Chrome.{" "}
-
               </div>
 
               {/* ✅ Garde "Installer l'extension" */}
@@ -492,11 +510,9 @@ export default function Home() {
                 >
                   Ajouter à Chrome (gratuit)
                 </button>
-              
               </div>
             </div>
           </section>
-
 
           {/* FOOTER */}
           <footer className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center text-xs text-slate-500">
@@ -529,8 +545,6 @@ export default function Home() {
                 Support
               </button>
             </div>
-
-            
           </footer>
         </div>
       </div>
@@ -715,17 +729,6 @@ export default function Home() {
               Modifier mon profil
             </button>
           </div>
-
-          {/* ✅ Remplace ⚠️ par icône info */}
-          <p className="text-xs text-slate-400 flex items-start gap-2">
-            <span
-              className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-slate-700 text-[10px] text-slate-300"
-              aria-hidden="true"
-            >
-              i
-            </span>
-            <span>L’extension est nécessaire pour utiliser MailCoach dans Gmail.</span>
-          </p>
         </header>
 
         {/* COMMENT ÇA MARCHE */}
